@@ -2,6 +2,7 @@
 #define BUFFER_H
 #include <algorithm>
 #include <string.h>
+#include <string>
 class Buffer {
   public:
     Buffer() : buf_(nullptr), b_(0), e_(0), cap_(0), exp_(512) { }
@@ -40,6 +41,10 @@ class Buffer {
       char* p = MakeRoom(len);
       AddSize(len);
       return p;
+    }
+
+    Buffer& Append(const std::string& str) {
+      return Append(str.c_str(), str.size());
     }
 
     Buffer& Append(const char* p, size_t len) {

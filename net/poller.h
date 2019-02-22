@@ -19,7 +19,6 @@ public:
     Poller(EventLoop *loop);
     virtual ~Poller();
 
-
     // 统一管理底层的poll select epoll等复用函数
     virtual TimeStamp Poll(int timeoutMs, ChannelList* activeChannels) = 0;
 

@@ -10,10 +10,27 @@
 #include "eventloop.h"
 #include "codec.h"
 
+struct AutoContext: Noncopyable {
+  void* ctx;
+  std::function<void()> ctxDel;
+  AutoContext():ctx(nullptr) {}
+
+  template<class T>
+  T& context() {
+    if (nullptr == ctx) {
+        ctx = new T();
+        ctxDel = [this] {delete (T*)ctx;};
+    }
+    return *(T*)ctx;
+  }
+
+  ~AutoContext() { if (ctx != nullptr) ctxDel(); }
+};
+
 class TcpConn;
 typedef std::shared_ptr<TcpConn> TcpConnPtr;
 typedef std::function<void(const TcpConnPtr&)> TcpCallBack;
-typedef std::function<void(const TcpConnPtr&, std::string msg)> MsgCallBack;
+typedef std::function<void(const TcpConnPtr&, std::string& msg)> MsgCallBack;
 
 class TcpConn : public std::enable_shared_from_this<TcpConn>, private Noncopyable{
 public:
@@ -41,6 +58,7 @@ public:
     const Ip4Addr GetPeerAddress() const { return peerAddr_; }
     bool IsConnected() const {return state_ == kConnected; }
     bool GetTcpInfo(struct tcp_info* info) const { assert(IsConnected()); socket_->GetTcpInfo(info); return true;}
+    bool IsClient() const {return peerAddr_.GetPort() > 0;}
     std::string GetTcpinfoString() const { char buf[1024]; socket_->GetTcpInfoString(buf, 1024); return buf;}
     State GetState() const { return state_; }
 
@@ -68,9 +86,10 @@ public:
 
     Buffer& GetInput() { return input_; }
     Buffer& GetOutput() { return output_; }
+    AutoContext& GetContext() { return ctx_;}
 
-private:
     void Attach(EventLoop* loop, int fd, const Ip4Addr& local, const Ip4Addr& peer);
+private:
     void HandleRead(const TcpConnPtr& con);
     void HandleWrite(const TcpConnPtr& con);
     int HandleHandShake(const TcpConnPtr& con);
@@ -88,6 +107,7 @@ private:
     std::unique_ptr<Socket> socket_;
     std::unique_ptr<Channel> channel_;
     std::unique_ptr<CodecBase> codec_;
+    AutoContext ctx_;
     int connectedTimeout_;
     int connectTimeout_;
     TimerId timeoutId_;

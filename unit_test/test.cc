@@ -10,7 +10,7 @@
 #include "timestamp.h"
 #include "channel.h"
 #include "processinfo.h"
-#include "net_test.h"
+#include "unit_test.h"
 #include "timerqueue.h"
 
 TEST(TestBase, TimeStamp) {

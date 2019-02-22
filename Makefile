@@ -14,10 +14,10 @@ all: daemon TestClient cleanObj
 #daemon :$(TEST_OBJ) $(NET_OBJ)
 #	$(CXX) $^ -o $@
 
-daemon :net_test/net_test.o net_test/Test.o $(NET_OBJ)
+daemon : unit_test/unit_test.o unit_test/test.o $(NET_OBJ)
 	$(CXX) $^ -o $@
 
-TestClient :net_test/net_test.o net_test/TestClient.o $(NET_OBJ)
+TestClient :unit_test/unit_test.o unit_test/test_client.o $(NET_OBJ)
 	$(CXX) $^ -o $@
 
 # 隐含规则包括了下面这个，但是写出来是最好的
