@@ -10,7 +10,7 @@ createcb_([]{return TcpConnPtr(new TcpConn);}) {}
 
 int TcpServer::Bind(const std::string& host, short port, bool reusePort) {
     addr_ = Ip4Addr(host, port);
-    int fd = socket(AF_INET, SOCK_STREAM, 0); 
+    int fd = socket(AF_INET, SOCK_STREAM, 0);
     int r = Net::SetReuseAddr(fd);
     FATALIF(r, "set socket reuse addr option failed");
     r = Net::SetReusePort(fd, reusePort);
@@ -26,6 +26,7 @@ int TcpServer::Bind(const std::string& host, short port, bool reusePort) {
     INFO("fd %d listening at %s", fd, addr_.ToString().c_str());
     listen_channel_ = new Channel(loop_, fd, Channel::kReadEvent);
     listen_channel_->SetReadCallback([this]{ HandleAccept();});
+    listen_channel_->AddToLoop();
     return 0;
 }
 
