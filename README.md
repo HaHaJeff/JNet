@@ -17,4 +17,4 @@
 
 **处理读事件**
 - muduo：在handlRead中显式调用messageCallback_，如果没有设置messageCallback_，那么数据会在inputBuffer累积（因为defaultMessageCallback除了写日志啥也不做)
-- handy: 在handleRead中只是将数据读入buffer中，只有设置onRead，才会改变readcb_，而OnMsg其实就是改变readcb_
+- handy: 在handleRead中只是将数据读入buffer中，只有设置onRead，才会改变readcb_，而OnMsg其实就是改变readcb_, 在handleRead中是while的，当read读完之后才会调用readcb_
