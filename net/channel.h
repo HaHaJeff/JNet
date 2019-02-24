@@ -4,7 +4,7 @@
 #include <functional>
 #include <memory>
 #include <stdint.h>
-
+#include "net.h"
 #include "util.h"
 #include "log.h"
 
@@ -26,7 +26,7 @@ public:
     void SetWriteCallback(EventCallback&& cb) { writeCallback_ = std::move(cb);}
     void SetCloseCallback(EventCallback&& cb) { closeCallback_ = std::move(cb);}
     void SetErrorCallback(EventCallback&& cb) { errorCallback_ = std::move(cb);}
-    
+
     void EnableRead() { events_ |= kReadEvent; Update(); }
     void EnableWrite() { events_ |= kWriteEvent; Update(); }
     void DisableRead() { events_ &= ~kReadEvent; Update(); }
@@ -66,7 +66,7 @@ private:
     short revents_;
     int fd_;
     int64_t id_;
-    int index_; 
+    int index_;
     bool addedToThisLoop_;
 
     EventCallback readCallback_;

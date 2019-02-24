@@ -6,18 +6,18 @@ CXXFLAGS += -I./net $(OPT) -std=c++11
 NET_SOURCES = $(shell find net -name '*.cc')
 NET_OBJ = $(NET_SOURCES:.cc=.o)
 
-TEST_SOURCES = $(shell find net_test -name '*.cc')
+TEST_SOURCES = $(shell find unit_test -name '*.cc')
 TEST_OBJ = $(TEST_SOURCES:.cc=.o)
 
-all: daemon TestClient cleanObj
+all: test http_server test_client cleanObj
 
-#daemon :$(TEST_OBJ) $(NET_OBJ)
-#	$(CXX) $^ -o $@
-
-daemon : unit_test/unit_test.o unit_test/test.o $(NET_OBJ)
+test: unit_test/unit_test.o unit_test/test.o $(NET_OBJ)
 	$(CXX) $^ -o $@
 
-TestClient :unit_test/unit_test.o unit_test/test_client.o $(NET_OBJ)
+test_client:unit_test/unit_test.o unit_test/test_client.o $(NET_OBJ)
+	$(CXX) $^ -o $@
+
+http_server: examples/http_server.o $(NET_OBJ)
 	$(CXX) $^ -o $@
 
 # 隐含规则包括了下面这个，但是写出来是最好的

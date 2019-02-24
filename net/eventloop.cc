@@ -2,15 +2,14 @@
 #include "poller.h"
 #include "timerqueue.h"
 #include "channel.h"
-
 #include <sys/eventfd.h>
 #include <unistd.h>
 
 int CreateEventFd() {
     int evtfd = eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
-    
+
     FATALIF(evtfd < 0, "Failed in eventfd");
-    
+
     return evtfd;
 }
 
@@ -68,7 +67,7 @@ bool EventLoop::HasChannel(Channel* ch) {
 }
 
 TimerId EventLoop::RunAt(TimeStamp&& time, TimerCallback&& cb) {
-    return timerQueue_->AddTimer(cb, time, 0.0); 
+    return timerQueue_->AddTimer(cb, time, 0.0);
 }
 
 TimerId EventLoop::RunAt(const TimeStamp& time, const TimerCallback& cb) {

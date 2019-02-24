@@ -41,8 +41,9 @@ void TcpServer::HandleAccept() {
     struct sockaddr_in raddr;
     socklen_t rsz = sizeof(raddr);
     int lfd = listen_channel_->GetFd();
-    int cfd = 0;
+    int cfd = -1;
     while (lfd >= 0 && (cfd = accept(lfd, (struct sockaddr*)&raddr, &rsz)) >= 0) {
+        INFO("fd %d accept at %d", lfd, cfd);
         sockaddr_in peer, local;
         socklen_t alen = sizeof(peer);
         int r = getpeername(cfd, (sockaddr*)&peer, &alen);

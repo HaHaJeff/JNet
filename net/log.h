@@ -6,7 +6,7 @@
 #include "util.h"
 
 // thanks to handy
-#define hlog(level, ...)                                                                    \ 
+#define hlog(level, ...)                                                                    \
     do {                                                                                    \
         if (level <= Logger::GetLogger().GetLogLevel()) {                                   \
             Logger::GetLogger().Write(level, __FILE__, __LINE__, __func__, __VA_ARGS__);    \

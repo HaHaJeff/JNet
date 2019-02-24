@@ -24,6 +24,7 @@ Channel::Channel(EventLoop* loop, int fd)
 {
     static std::atomic<int64_t> id(0);
     id_ = ++id;
+    FATALIF(Net::SetNonBlock(fd_) < 0, "channel set non block failed");
 }
 
 Channel::Channel(EventLoop* loop, int fd, int events)
@@ -34,6 +35,7 @@ Channel::Channel(EventLoop* loop, int fd, int events)
       id_(-1),
       addedToThisLoop_(false)
 {
+    FATALIF(Net::SetNonBlock(fd_) < 0, "channel set non block failed");
     static std::atomic<int64_t> id(0);
     id_ = ++id;
 }
@@ -69,7 +71,7 @@ void Channel::HandleEvent() {
 }
 
 void Channel::Update() {
-    assert(addedToThisLoop_);
+    //assert(addedToThisLoop_);
     loop_->UpdateChannel(this);
 }
 

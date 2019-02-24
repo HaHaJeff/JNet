@@ -11,7 +11,7 @@ TcpConn::TcpConn(EventLoop* loop, const Ip4Addr& local, const Ip4Addr& peer, int
     peerAddr_(peer),
     connectTimeout_(timeout)
 {
-}    
+}
 
 TcpConn::~TcpConn() {
     if (channel_->IsInLoop()) {
@@ -23,15 +23,14 @@ void TcpConn::Attach(EventLoop* loop, int fd, const Ip4Addr& local, const Ip4Add
     loop_ = loop;
     state_ = State::kHandShakeing;
     localAddr_ = local;
-    peerAddr_ = peer; 
+    peerAddr_ = peer;
 
     Channel* ch = new Channel(loop, fd, Channel::kWriteEvent | Channel::kReadEvent);
-    fd_ = fd;
     socket_.reset(new Socket(fd));
     channel_.reset(ch);
     channel_->AddToLoop();
 
-    TRACE("tcp constructed %s - %s fd: %d", localAddr_.ToString().c_str(), peerAddr_.ToString().c_str(), fd);
+    TRACE("tcp constructed %s - %s fd: %d events: %d", localAddr_.ToString().c_str(), peerAddr_.ToString().c_str(), fd, channel_->GetEvents());
 
     TcpConnPtr conn = shared_from_this();
     conn->channel_->SetReadCallback([=]{conn->HandleRead(conn); });
@@ -46,7 +45,7 @@ void TcpConn::Connect(EventLoop* loop, const Ip4Addr& local, const Ip4Addr& peer
 
     int fd = socket(AF_INET, SOCK_STREAM, 0);
     Net::SetNonBlock(fd);
-    
+
     int r = 0;
     r = bind(fd, sockaddr_cast(&localAddr_.GetAddr()), sizeof(struct sockaddr));
 
@@ -126,11 +125,13 @@ void TcpConn::HandleRead(const TcpConnPtr& con) {
        if (rd == -1 && errno == EINTR) {
            continue;
        } else if(rd == -1 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
+           TRACE("channel %lld fd %d call readcb_", (long long)channel_->GetId(), channel_->GetFd());
            if (readcb_ && input_.GetSize()) {
                readcb_(con);
            }
            break;
        } else if (channel_->GetFd() == -1 || rd == -1 || rd == 0) {
+           TRACE("channel %lld fd %d call cleanUP", (long long)channel_->GetId(), channel_->GetFd());
            CleanUp(con);
            break;
        } else {
@@ -169,7 +170,7 @@ void TcpConn::HandleWrite(const TcpConnPtr& con) {
         ssize_t sended = ISend(output_.Begin(), output_.GetSize());
         output_.Consume(sended);
         if (output_.IsEmpty() && channel_->IsWriting()) {
-            channel_->DisableWrite();
+           // channel_->DisableWrite();
         }
     } else {
         ERROR("handle write unexpected");

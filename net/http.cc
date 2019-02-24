@@ -159,7 +159,7 @@ void HttpConnPtr::OnHttpMsg(const HttpCallBack& cb) const {
 }
 
 void HttpConnPtr::HandleRead_(const HttpCallBack& cb) const {
-    if (tcp_->IsClient()) {
+    if (!tcp_->IsClient()) {
         HttpRequest& req = GetRequest();
         std::string buf(tcp_->GetInput().GetData(), tcp_->GetInput().GetSize());
         HttpMsg::Result r = req.TryDecode(buf);

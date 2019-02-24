@@ -146,6 +146,6 @@ void Logger::Write(int level, const char* file, int line, const char*func, const
     }
     if (level == LFATAL) {
         fprintf(stderr, "%s", buffer);
-        assert(0);
+        //assert(0);
     }
 }

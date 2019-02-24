@@ -1,10 +1,10 @@
 #include <poll.h>
 #include <errno.h>
 #include <assert.h>
-#include <algorithm>
 #include "pollpoller.h"
 #include "log.h"
 #include "channel.h"
+#include <stdio.h>
 
 /*
    struct pollfd {
@@ -62,10 +62,11 @@ void PollPoller::UpdateChannel(Channel* channel) {
 
 void PollPoller::AddChannel(Channel* channel) {
   Poller::AssertInLoopThread();
-  TRACE("adding channel %lld, fd=%d, events=%d", channel->GetFd(), channel->GetEvents());
+  int events = channel->GetEvents();
+  TRACE("adding channel %lld, fd=%d, events=%d", channel->GetId(), channel->GetFd(), events);
   struct pollfd pfd;
   pfd.fd = channel->GetFd();
-  pfd.events = channel->GetEvents();
+  pfd.events = events;
   pfd.revents = 0;
   pollfds_.push_back(pfd);
   channels_[pfd.fd] = channel;
