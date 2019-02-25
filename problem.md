@@ -1,2 +1,3 @@
 - listen fd ，没有设置成nonblock，导致多路复用实效
 - http, 报文解析出错
+- CPU利用率与libevent一样，但是libevent的内存利用是0.1%，但是JNet是5.0%
