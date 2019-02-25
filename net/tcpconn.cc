@@ -125,8 +125,8 @@ void TcpConn::HandleRead(const TcpConnPtr& con) {
        if (rd == -1 && errno == EINTR) {
            continue;
        } else if(rd == -1 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
-           TRACE("channel %lld fd %d call readcb_", (long long)channel_->GetId(), channel_->GetFd());
-           if (readcb_ && input_.GetSize()) {
+           TRACE("channel %lld fd %d call readcb_, input size %d, con %p", (long long)channel_->GetId(), channel_->GetFd(), input_.GetSize(), con.get());
+           if (readcb_ && input_.GetSize() && con != nullptr) {
                readcb_(con);
            }
            break;
@@ -170,7 +170,7 @@ void TcpConn::HandleWrite(const TcpConnPtr& con) {
         ssize_t sended = ISend(output_.Begin(), output_.GetSize());
         output_.Consume(sended);
         if (output_.IsEmpty() && channel_->IsWriting()) {
-           // channel_->DisableWrite();
+           channel_->DisableWrite();
         }
     } else {
         ERROR("handle write unexpected");

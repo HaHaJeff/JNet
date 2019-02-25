@@ -1,1 +1,2 @@
 - listen fd ，没有设置成nonblock，导致多路复用实效
+- http, 报文解析出错

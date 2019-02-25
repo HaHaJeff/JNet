@@ -31,4 +31,4 @@ cleanObj:
 
 .PHONY: clean
 clean:
-	rm daemon TestClient
+	rm test test_client http_server

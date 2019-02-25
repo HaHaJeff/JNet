@@ -85,12 +85,14 @@ void PollPoller::RemoveChannel(Channel* channel) {
   // 调用pop_back
   if (idx == pollfds_.size() - 1) {
     pollfds_.pop_back();
-  } else {
+  } else if (pollfds_.size() > 1 ){
     const struct pollfd& endPfd = pollfds_.back();
     std::iter_swap(pollfds_.begin()+idx, pollfds_.end()-1);
-    channels_[endPfd.fd]->SetIndex(idx);
+    if (channels_[endPfd.fd] != nullptr) {
+      channels_[endPfd.fd]->SetIndex(idx);
+      channels_.erase(channel->GetFd());
+    }
     pollfds_.pop_back();
-    channels_.erase(channel->GetFd());
   }
 
 }

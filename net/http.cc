@@ -6,7 +6,7 @@ void HttpMsg::Clear() {
     headers_.clear();
     version_ = "HTTP/1.1";
     body_.clear();
-    complete_ = false; 
+    complete_ = false;
     contentLen_ = 0;
     scanned_ = 0;
 }
@@ -17,14 +17,14 @@ std::string HttpMsg::GetValueFromMap_(std::map<std::string, std::string>& m, con
 }
 
 HttpMsg::Result HttpMsg::TryDecode_(std::string& buf, int & lineStart, int& lineEnd) {
-   if (complete_) return Complete; 
+   if (complete_) return Complete;
    if (contentLen_ == 0) {
        // 请求行 header与body之间 \r\b\r\n
        auto p = buf.find("\r\n\r\n");
        if (p == std::string::npos) return NotComplete;
        lineStart = 0;
        lineEnd = buf.find("\r\n")-1;
-       DecodeHeader_(buf, lineEnd+3, p-1);
+       DecodeHeader_(buf, lineEnd+4, p);
        contentLen_ = atoi(GetHeader("content-length").c_str());
        scanned_ = p+4;
        body_ = buf.substr(scanned_, contentLen_);
@@ -80,14 +80,14 @@ int HttpRequest::Encode(Buffer& buf) {
 HttpMsg::Result HttpRequest::TryDecode(std::string& buf, bool copyBody) {
     int start = 0, end = 0;
     Result r = TryDecode_(buf, start, end);
-    int i = buf.find(" ", start);        
+    int i = buf.find(" ", start);
     method_ = buf.substr(start, i-start);
-    int oldI = i;
+    int oldI = i+1;
     i = buf.find(" ", i+1);
-    query_uri_ = buf.substr(i+1, i-oldI);
-    version_ = buf.substr(i+1, end);
+    query_uri_ = buf.substr(oldI, i-oldI);
+    version_ = buf.substr(i+1, end-i);
     if(query_uri_.size() == 0 || query_uri_[0] != '/') {
-        ERROR("query uri %s '%,*s' should begin with /", query_uri_.size(), query_uri_.data());
+        ERROR("query uri '%.*s' should begin with /", query_uri_.size(), query_uri_.data());
         return Error;
     }
 
@@ -102,20 +102,20 @@ void HttpRequest::DecodeArgs(std::string& buf) {
         if (i == query_uri_.size()) uri_ = query_uri_;
 
         if (query_uri_[i] == '?') {
-            uri_ = buf.substr(0, i); 
+            uri_ = buf.substr(0, i);
             std::string qs = buf.substr(i+1, buf.size()-i-1);
             size_t c, kb, ke, vb, ve;
             ve = vb = ke = kb = c = 0;
             while (c < qs.size()) {
                 while (c < qs.size() && qs[c] != '=' && qs[c] != '&') c++;
                 ke = c;
-                if (c < qs.size() && qs[c] == '=') c++; 
+                if (c < qs.size() && qs[c] == '=') c++;
                 vb = c;
                 while(c < qs.size() && qs[c] != '&') c++;
                 ve = c;
                 if (c < qs.size() && qs[c] == '&') c++;
                 if (kb != ke) {
-                    args_[std::string(qs.data()+kb, qs.data()+ke)] = 
+                    args_[std::string(qs.data()+kb, qs.data()+ke)] =
                     std::string(qs.data()+vb, qs.data()+ve);
                 }
                 kb = ke = vb = ve = c;
@@ -144,7 +144,7 @@ HttpMsg::Result HttpResponse::TryDecode(std::string& buf, bool copyBody) {
     int start = 0, end = 0;
     Result r = TryDecode_(buf, start, end);
     if(start < end) {
-        int i = buf.find(" ", start);        
+        int i = buf.find(" ", start);
         version_ = buf.substr(start, i-start);
         int oldI = i;
         i = buf.find(" ", i+1);
@@ -183,7 +183,7 @@ void HttpConnPtr::HandleRead_(const HttpCallBack& cb) const {
             return;
         }
         if (r == HttpMsg::Complete) {
-            INFO("http response: %d %s", rep.GetStatus(), rep.GetStatusWord().c_str()); 
+            INFO("http response: %d %s", rep.GetStatus(), rep.GetStatusWord().c_str());
             TRACE("http request: \n%.*s", buf.size(), buf.c_str());
             cb(*this);
         }
