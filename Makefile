@@ -9,12 +9,15 @@ NET_OBJ = $(NET_SOURCES:.cc=.o)
 TEST_SOURCES = $(shell find unit_test -name '*.cc')
 TEST_OBJ = $(TEST_SOURCES:.cc=.o)
 
-all: test http_server test_client cleanObj
+all: test http_server test_client test_server cleanObj
 
 test: unit_test/unit_test.o unit_test/test.o $(NET_OBJ)
 	$(CXX) $^ -o $@
 
 test_client:unit_test/unit_test.o unit_test/test_client.o $(NET_OBJ)
+	$(CXX) $^ -o $@
+
+test_server:unit_test/unit_test.o unit_test/test_server.o $(NET_OBJ)
 	$(CXX) $^ -o $@
 
 http_server: examples/http_server.o $(NET_OBJ)
@@ -31,4 +34,4 @@ cleanObj:
 
 .PHONY: clean
 clean:
-	rm test test_client http_server
+	rm test test_client http_server test_server

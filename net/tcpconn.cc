@@ -9,14 +9,7 @@ TcpConn::TcpConn(EventLoop* loop, const Ip4Addr& local, const Ip4Addr& peer, int
     loop_(loop),
     localAddr_(local),
     peerAddr_(peer),
-    connectTimeout_(timeout)
-{
-}
-
-TcpConn::~TcpConn() {
-    if (channel_->IsInLoop()) {
-        channel_->RemoveFromLoop();
-    }
+    connectTimeout_(timeout) {
 }
 
 void TcpConn::Attach(EventLoop* loop, int fd, const Ip4Addr& local, const Ip4Addr& peer) {
@@ -58,6 +51,7 @@ void TcpConn::Connect(EventLoop* loop, const Ip4Addr& local, const Ip4Addr& peer
         if (r != 0 && errno != EINPROGRESS) {
             ERROR("connect to %s error %d %s", peerAddr_.ToString().c_str(), errno, strerror(errno));
         }
+
     }
 
     struct sockaddr_in localin = localAddr_.GetAddr();
@@ -108,6 +102,8 @@ void TcpConn::CleanUp(const TcpConnPtr& con) {
     }
 
     readcb_ = writecb_ = statecb_ = nullptr;
+    auto ch = channel_.release();
+    delete ch;
 }
 
 void TcpConn::HandleRead(const TcpConnPtr& con) {
@@ -253,6 +249,7 @@ void TcpConn::OnMsg(CodecBase* codec, const MsgCallBack& cb) {
 }
 
 void TcpConn::SendMsg(std::string msg) {
-    codec_->Encode(msg, GetOutput());
+    Buffer& b = GetOutput();
+    codec_->Encode(msg, b);
     SendOutput();
 }

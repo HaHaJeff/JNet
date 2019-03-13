@@ -79,7 +79,7 @@ TimerQueue::TimerQueue(EventLoop *loop)
 
 TimerQueue::~TimerQueue()
 {
-    channel_.RemoveFromLoop();
+//    channel_.RemoveFromLoop();
     close(timerfd_);
     for (auto it : timers_)
     {
@@ -126,6 +126,7 @@ void TimerQueue::CancelTimerIdInLoop(TimerId timerid)
 {
     loop_->AssertInLoopThread();
     Timer *timer = timerid.timer_;
+    if (timer == nullptr) return;
     TimeStamp expiration = timer->GetExpiration();
     timers_.erase(Entry(expiration, timer));
 }

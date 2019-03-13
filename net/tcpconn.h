@@ -35,9 +35,9 @@ typedef std::function<void(const TcpConnPtr&, std::string& msg)> MsgCallBack;
 class TcpConn : public std::enable_shared_from_this<TcpConn>, private Noncopyable{
 public:
     enum State { kInvalid = 1, kHandShakeing, kConnected, kClosed, kFailed };
-    TcpConn() {}
+    TcpConn() {};
     TcpConn(EventLoop* loop, const Ip4Addr& local, const Ip4Addr& peer, int timeout=0);
-    virtual ~TcpConn();
+    ~TcpConn() {}
 
     template <class T=TcpConn>
     static TcpConnPtr CreateConnection(EventLoop* loop, const Ip4Addr& local, const Ip4Addr& peer, int timeout = 0) {

@@ -4,9 +4,10 @@
 #include <unistd.h>
 
 TcpServer::TcpServer(EventLoop* loop):
-loop_(loop),
-listen_channel_(nullptr),
-createcb_([]{return TcpConnPtr(new TcpConn);}) {}
+    loop_(loop),
+    listen_channel_(nullptr),
+    createcb_([]{return TcpConnPtr(new TcpConn());}) 
+{}
 
 int TcpServer::Bind(const std::string& host, short port, bool reusePort) {
     addr_ = Ip4Addr(host, port);

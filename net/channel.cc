@@ -19,8 +19,7 @@ Channel::Channel(EventLoop* loop, int fd)
       fd_(fd),
       events_(0),
       revents_(0),
-      id_(-1),
-      addedToThisLoop_(false)
+      id_(-1)
 {
     static std::atomic<int64_t> id(0);
     id_ = ++id;
@@ -32,8 +31,7 @@ Channel::Channel(EventLoop* loop, int fd, int events)
       fd_(fd),
       events_(events),
       revents_(0),
-      id_(-1),
-      addedToThisLoop_(false)
+      id_(-1)
 {
     static std::atomic<int64_t> id(0);
     id_ = ++id;
@@ -42,7 +40,6 @@ Channel::Channel(EventLoop* loop, int fd, int events)
 
 
 Channel::~Channel() {
-    assert(!addedToThisLoop_);
     if (fd_ != -1) Close();
 }
 
@@ -71,19 +68,15 @@ void Channel::HandleEvent() {
 }
 
 void Channel::Update() {
-    //assert(addedToThisLoop_);
     loop_->UpdateChannel(this);
 }
 
 // before call this function, should call Disable
 void Channel::RemoveFromLoop() {
-    assert(addedToThisLoop_);
-    addedToThisLoop_ = false;
     loop_->RemoveChannel(this);
 }
 
 void Channel::AddToLoop() {
-    addedToThisLoop_ = true;
     loop_->AddChannel(this);
 }
 

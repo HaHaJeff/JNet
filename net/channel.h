@@ -33,7 +33,6 @@ public:
     void DisableWrite() { events_ &= ~kWriteEvent; Update(); }
     bool IsWriting() const { return events_ & kWriteEvent; }
     bool IsReading() const { return events_ & kReadEvent; }
-    bool IsInLoop() const { return addedToThisLoop_; }
 
     short GetEvents() const { return events_; }
     int GetFd() const { return fd_; }
@@ -67,7 +66,6 @@ private:
     int fd_;
     int64_t id_;
     int index_;
-    bool addedToThisLoop_;
 
     EventCallback readCallback_;
     EventCallback writeCallback_;
