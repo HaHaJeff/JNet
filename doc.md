@@ -75,8 +75,7 @@ if (events & POLLOUT) {
 
 
 ### 为什么需要应用层缓冲？
-要想不阻塞当前IO线程（负责poll），必须使用nonblocking配合应用层buffer
-考虑如下场景：
+要想不阻塞当前IO线程（负责poll），必须使用nonblocking配合应用层buffer 考虑如下场景：
 - 如果用户需要发送10KB数据，但是由于TCP滑动窗口的原因只能发送8KB
 ，剩下的2KB只能不断的write，然后返回EAGING或EWOULDBLOCK，这样就相当与阻塞了当前发送线程，然而采用buffer就不一样了，当数据写入buffer内后，发送线程就可以去干其他事情了。当位于poll的TCPCONN可写时自动从buffer中发送数据。这就解耦了应用程序与网络库，应用程序只管数据的生成，而不去操行数据是分几次发送的。
 - 如果对方发送了两条1KB的消息，那么接收方收到数据的情况可能是：
@@ -87,3 +86,23 @@ if (events & POLLOUT) {
     - 分三次收到，第一次600B，第二次800B，第三此600B
     - 其他任何可能。一般而言，长度为n字节的消息分块到达的可能性有2^(n-1)
 所以如果应用程序需要自己去负责消息的完整性会有许多不便利的地方。提供input buffer则可以有效解决。当input buffer内的数据构成一条完整的消息时再通知程序的业务逻辑，这通常是有codec负责。
+
+**已完成组件，但为添加到代码中**
+- 同步队列以及线程池
+
+**未完成功能**
+- 多线程操作EventLoop
+
+**实现思想：为EventLoop添加一个SafeQueue，当其他线程想要操作tcpconnptr时，只是将任务push进SafeQueue并调用wakeup唤醒IO线程**
+
+- 如何唤醒？
+
+为EventLoop添加一个wakeupfd_并将fd加入eventloop中，当调用wakeup函数时候，向其中写入一个字节，这样wakeupfd_就可读了，产生读时间，pop safequeue并执行
+
+- wakeupfd_如何选择？
+pipe可以，生成一队fd，并写readfd加入epoll中。
+采用eventfd可以完成时间通知，哈哈，配合timerfd感觉瞬间高大上哈。
+
+**处理读事件**
+- muduo：在handlRead中显式调用messageCallback_，如果没有设置messageCallback_，那么数据会在inputBuffer累积（因为defaultMessageCallback除了写日志啥也不做)
+- handy: 在handleRead中只是将数据读入buffer中，只有设置onRead，才会改变readcb_，而OnMsg其实就是改变readcb_, 在handleRead中是while的，当read读完之后才会调用readcb_

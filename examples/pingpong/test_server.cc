@@ -9,7 +9,6 @@
 #include "timestamp.h"
 #include "channel.h"
 #include "processinfo.h"
-#include "unit_test.h"
 #include "timerqueue.h"
 #include "tcpconn.h"
 #include "tcpserver.h"
@@ -25,7 +24,7 @@ int func() {
   ptr->OnConnRead([](const TcpConnPtr& con)
   {
       Buffer& b = con->GetInput();
-      std::cout <<  b.GetData() << std::endl;
+      //std::cout <<  b.GetData() << std::endl;
       con->Send(b);
   });
   loop->Loop();
@@ -33,6 +32,6 @@ int func() {
 
 int main()
 {
-   // SETLOGLEVEL("FATAL");
+    SETLOGLEVEL("FATAL");
     func();
 }

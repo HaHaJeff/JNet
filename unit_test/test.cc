@@ -20,7 +20,7 @@ TEST(TestBase, TimeStamp) {
 }
 
 TEST(TestBase, Channel) {
-  Channel ch(nullptr, -1);
+  Channel ch(nullptr, 0);
   ch.SetREvents(POLLNVAL);
   ch.HandleEvent();
 }
@@ -53,7 +53,7 @@ TEST(TestBase, Socket) {
   s.SetReusePort(true);
   Ip4Addr peer;
   int connfd = s.Accept(peer);
-  char buf[4096];
+  char buf[1024];
   std::cout << "Socket tcp info: ";
   s.GetTcpInfoString(buf, 1024);
   std::cout << buf << std::endl;
