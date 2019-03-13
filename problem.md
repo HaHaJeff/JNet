@@ -1,3 +1,9 @@
 - listen fd ，没有设置成nonblock，导致多路复用实效
 - http, 报文解析出错
 - CPU利用率与libevent一样，但是libevent的内存利用是0.1%，但是JNet是5.0%
+- 没有判断事件错误码，如果出现IN+HUP错误表示对端已经断开链接了(对一个关闭的套接字写数据，第一次返回RST，read的时候应该要对这种错误进行捕捉并进行适当的处理)
+    - 如果客户端突然断开，那么服务端会出现segment fault，原因是对一个read返回-1的套接字没有做正确处理 **应该cleanup 这个tcp链接**
+    - 如果服务端突然断开，那么客户端也会出现segment fault，原因同样，不过客户端可以多实现一个功能：reconnect **暂时没有实现** 
+- 如果在发送过程中，如果crtl+c掉客户端或者服务端，那么抓包可能会出现
+    - FIN+ACK FIN+ACK ACK
+    - RST(接受缓冲区还有数据没有被读取，服务器在close时会导致RST)
