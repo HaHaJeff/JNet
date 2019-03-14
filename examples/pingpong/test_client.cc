@@ -50,6 +50,6 @@ int func() {
 
 int main()
 {
-    SETLOGLEVEL("FATAL");
+  //  SETLOGLEVEL("FATAL");
     func();
 }

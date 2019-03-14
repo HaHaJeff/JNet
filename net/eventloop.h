@@ -6,6 +6,8 @@
 #include <functional>
 #include <memory>
 #include <vector>
+#include <mutex>
+#include <sys/types.h>
 
 class Channel;
 class Poller;
@@ -29,21 +31,27 @@ public:
 
     void RunInLoop(const Functor& func);
     void RunInLoop(Functor&& func);
-    bool AssertInLoopThread();
-
+    void QueueInLoop(const Functor& func);
+    void QueueInLoop(Functor&& func);
+    void WakeUp();
+    void AssertInLoopThread();
+    bool IsInLoopThread();
     TimerId RunAt(TimeStamp&& time, TimerCallback&& cb);
     TimerId RunAt(const TimeStamp& time, const TimerCallback& cb);
     TimerId RunAfter(double delay, const TimerCallback& cb);
     TimerId RunAfter(double delay, TimerCallback&& cb);
+    void Quit();
 
     void Cancel(TimerId timerId);
 private:
     // for wake up;
     void HandleRead();
+    void DoPendingFunctors();
 
 private:
     typedef std::vector<Channel*> ChannelList;
 
+    pid_t tid_;
     std::unique_ptr<Poller> poller_;
     std::unique_ptr<TimerQueue> timerQueue_;
 
@@ -55,6 +63,9 @@ private:
 
     bool quit_;
     static const int kPollTimeMs = 10000;
+    std::vector<Functor> pendingFunctors_;
+    bool doingPending_;
+    std::mutex mutex_;
 };
 
 #endif

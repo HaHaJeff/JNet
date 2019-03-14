@@ -7,3 +7,6 @@
 - 如果在发送过程中，如果crtl+c掉客户端或者服务端，那么抓包可能会出现
     - FIN+ACK FIN+ACK ACK
     - RST(接受缓冲区还有数据没有被读取，服务器在close时会导致RST)
+
+- 增加多线程操作IO loop功能，出现assert(tid_ == gettid())断言错误，原因是：在EventLoop没有构造完成时，发生AddToLoop调用
+- 客户端主动断开连接，再次运行出现address in use

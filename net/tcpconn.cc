@@ -38,7 +38,7 @@ void TcpConn::Connect(EventLoop* loop, const Ip4Addr& local, const Ip4Addr& peer
 
     int fd = socket(AF_INET, SOCK_STREAM, 0);
     Net::SetNonBlock(fd);
-
+    Net::SetReuseAddr(fd);
     int r = 0;
     r = bind(fd, sockaddr_cast(&localAddr_.GetAddr()), sizeof(struct sockaddr));
 
