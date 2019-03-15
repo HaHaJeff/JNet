@@ -12,7 +12,7 @@ EXAMPLES_OBJ = $(EXAMPLES_SOURCE:.cc=.o)
 TEST_SOURCES = $(shell find unit_test -name '*.cc')
 TEST_OBJ = $(TEST_SOURCES:.cc=.o)
 
-all: test http_server test_client test_server cleanObj
+all: test http_server test_client test_server #cleanObj
 
 test: unit_test/unit_test.o unit_test/test.o $(NET_OBJ)
 	$(CXX) $^ -o $@ ${CXXFLAGS}

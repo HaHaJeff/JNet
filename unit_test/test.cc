@@ -13,6 +13,7 @@
 #include "unit_test.h"
 #include "timerqueue.h"
 #include "eventloop_thread.h"
+#include "eventloop_pool.h"
 
 TEST(TestBase, TimeStamp) {
   TimeStamp t(TimeStamp::Now());
@@ -104,6 +105,25 @@ TEST(TestBase, EventLoop) {
 }
 */
 
+TEST(TestBase, EventLoopPool) {
+  Logger& log = Logger::GetLogger();
+  log.SetFileName("event.log");
+  EventLoop baseLoop;
+  EventLoopPool pool(&baseLoop);
+  pool.SetThreadNum(2);
+  pool.Start();
+  auto loop = pool.GetNextLoop();
+  int i = 0;
+  while (i < 1) {
+    loop->RunAfter(2.0, [i]
+        {
+          std::cout << "RunAfter: " << i << std::endl;
+        }
+        );
+    i+=1;
+  }
+  baseLoop.Loop();
+}
 TEST(TestBase, EventLoopThread) {
   Logger& log = Logger::GetLogger();
   log.SetFileName("event.log");
