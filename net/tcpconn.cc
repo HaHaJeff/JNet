@@ -239,7 +239,6 @@ void TcpConn::Send(const char* message, size_t len) {
         return;
     }
     if (loop_->IsInLoopThread()) {
-        TRACE("IsInLoopThread");
         SendInLoop(message, len);
         return;
     } else {

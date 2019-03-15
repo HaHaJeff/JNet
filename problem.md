@@ -10,3 +10,5 @@
 
 - 增加多线程操作IO loop功能，出现assert(tid_ == gettid())断言错误，原因是：在EventLoop没有构造完成时，发生AddToLoop调用
 - 客户端主动断开连接，再次运行出现address in use
+
+- 记lambda表达式中& =误用引起的segment faul,程序中使用TcpConnPtr对TcpConn对象进行保存(shared_ptr)
