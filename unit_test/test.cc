@@ -12,6 +12,7 @@
 #include "processinfo.h"
 #include "unit_test.h"
 #include "timerqueue.h"
+#include "eventloop_thread.h"
 
 TEST(TestBase, TimeStamp) {
   TimeStamp t(TimeStamp::Now());
@@ -20,7 +21,7 @@ TEST(TestBase, TimeStamp) {
 }
 
 TEST(TestBase, Channel) {
-  Channel ch(nullptr, 0);
+  Channel ch(nullptr, -1);
   ch.SetREvents(POLLNVAL);
   ch.HandleEvent();
 }
@@ -45,12 +46,12 @@ TEST(TestBase, ProcessInfo) {
 TEST(TestBase, Socket) {
   int fd = socket(AF_INET, SOCK_STREAM, 0);
   Socket s(fd);
-  Ip4Addr ip4("127.0.0.1", 9999);
-  s.BindAddress(ip4);
-  s.Listen();
   s.SetKeepAlive(true);
   s.SetReuseAddr(true);
   s.SetReusePort(true);
+  Ip4Addr ip4("127.0.0.1", 9999);
+  s.BindAddress(ip4);
+  s.Listen();
   Ip4Addr peer;
   int connfd = s.Accept(peer);
   char buf[1024];
@@ -83,6 +84,7 @@ TEST(TestBase, TimerQueue) {
     queue.HandleRead();
 }
 
+/*
 TEST(TestBase, EventLoop) {
   Logger& log = Logger::GetLogger();
   log.SetFileName("event.log");
@@ -100,6 +102,26 @@ TEST(TestBase, EventLoop) {
 
   loop.Loop();
 }
+*/
+
+TEST(TestBase, EventLoopThread) {
+  Logger& log = Logger::GetLogger();
+  log.SetFileName("event.log");
+  EventLoopThread t;
+  auto loop = t.StartLoop();
+  int i = 0;
+  while (i < 1) {
+    loop->RunAfter(2.0, [i]
+        {
+          std::cout << "RunAfter: " << i << std::endl;
+        }
+        );
+    i+=1;
+  }
+
+    while(1); 
+}
+
 
 
 int main()

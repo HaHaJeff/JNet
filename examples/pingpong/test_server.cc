@@ -12,15 +12,13 @@
 #include "timerqueue.h"
 #include "tcpconn.h"
 #include "tcpserver.h"
+#include <thread>
 
 int func() { 
-  int fd = socket(AF_INET, SOCK_STREAM, 0);
-  Net::SetNonBlock(fd);
-  Socket s(fd);
   Ip4Addr addr("127.0.0.1", 9999);
 
   EventLoop* loop = new EventLoop();
-  TcpServerPtr ptr = TcpServer::StartServer(loop, "127.0.0.1", 9999);
+  TcpServerPtr ptr = TcpServer::StartServer(loop, "127.0.0.1", 9999, true);
   ptr->OnConnRead([](const TcpConnPtr& con)
   {
       Buffer& b = con->GetInput();
@@ -32,6 +30,10 @@ int func() {
 
 int main()
 {
-  //  SETLOGLEVEL("FATAL");
-    func();
+    SETLOGLEVEL("FATAL");
+    std::thread t1(func);
+   // std::thread t2(func);
+  //  func();
+    t1.join();
+  //  t2.join();
 }

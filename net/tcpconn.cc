@@ -197,6 +197,25 @@ ssize_t TcpConn::ISend(const char* buf, size_t len) {
 }
 
 void TcpConn::Send(Buffer& message) {
+    /*
+    if (state_ != kConnected) {
+        WARN("TcpConn::Send() not connected, give up send");
+        return;
+    }
+
+    if (loop_->IsInLoopThread()) {
+        SendInLoop(message.GetData(), message.GetSize());
+        message.Consume(message.GetSize());
+    } else {
+        loop_->RunInLoop(
+            [&]()
+            {
+                SendInLoop(message.GetData(), message.GetSize());
+                message.Consume(message.GetSize());
+            }
+        );
+    }
+    */
     if (channel_) {
         // 如果channel开启了写，则将message直接添加到output中
         if (channel_->IsWriting()) {
@@ -215,6 +234,24 @@ void TcpConn::Send(Buffer& message) {
 }
 
 void TcpConn::Send(const char* message, size_t len) {
+    if (state_ != kConnected) {
+        WARN("TcpConn::Send() not connected, give up send");
+        return;
+    }
+    if (loop_->IsInLoopThread()) {
+        TRACE("IsInLoopThread");
+        SendInLoop(message, len);
+        return;
+    } else {
+        loop_->RunInLoop(
+            [&]()
+            { this->SendInLoop(message, len);}
+        );
+    }
+}
+
+void TcpConn::SendInLoop(const char* message, size_t len) {
+    loop_->AssertInLoopThread();
     if (channel_) {
         if(output_.IsEmpty()) {
             ssize_t sended = ISend(message, len);

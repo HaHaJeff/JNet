@@ -1,7 +1,7 @@
 OPT ?= -g2
 
 CFLAGS += -I./net $(OPT)
-CXXFLAGS += -I./net $(OPT) -std=c++11
+CXXFLAGS += -I./net $(OPT) -std=c++11 -pthread
 
 NET_SOURCES = $(shell find net -name '*.cc')
 NET_OBJ = $(NET_SOURCES:.cc=.o)
@@ -15,16 +15,16 @@ TEST_OBJ = $(TEST_SOURCES:.cc=.o)
 all: test http_server test_client test_server cleanObj
 
 test: unit_test/unit_test.o unit_test/test.o $(NET_OBJ)
-	$(CXX) $^ -o $@
+	$(CXX) $^ -o $@ ${CXXFLAGS}
 
 test_client: examples/pingpong/test_client.o $(NET_OBJ)
-	$(CXX) $^ -o $@
+	$(CXX) $^ -o $@ ${CXXFLAGS}
 
 test_server: examples/pingpong/test_server.o $(NET_OBJ)
-	$(CXX) $^ -o $@
+	$(CXX) $^ -o $@ ${CXXFLAGS}
 
 http_server: examples/http/http_server.o $(NET_OBJ)
-	$(CXX) $^ -o $@
+	$(CXX) $^ -o $@ ${CXXFLAGS}
 
 # 隐含规则包括了下面这个，但是写出来是最好的
 # 定义模式规则

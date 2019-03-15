@@ -62,12 +62,14 @@ public:
     std::string GetTcpinfoString() const { char buf[1024]; socket_->GetTcpInfoString(buf, 1024); return buf;}
     State GetState() const { return state_; }
 
-    void SendOutput() { Send(output_); }
+    // TODO: not thread safe
     void Send(const char* message, size_t len);
+    void Send(const char* s) { Send(s, strlen(s));}
     void Send(const std::string& message) { Send(message.c_str()); }
     void Send(Buffer& message);
-    void Send(const char* s) { Send(s, strlen(s));}
+    void SendOutput() { Send(output_); }
     ssize_t ISend(const char* buf, size_t len);
+    void SendInLoop(const char* message, size_t len);
 
     //数据到达时回调
     void OnRead(const TcpCallBack& cb) { readcb_ = cb; }
@@ -75,7 +77,6 @@ public:
     void OnWrite(const TcpCallBack& cb) { writecb_ = cb; }
     //状态改变时回调
     void OnState(const TcpCallBack& cb) { statecb_ = cb; }
-
     void OnMsg(CodecBase* codec, const MsgCallBack& cb);
     void SendMsg(std::string msg);
 

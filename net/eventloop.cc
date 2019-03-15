@@ -53,6 +53,7 @@ void EventLoop::Loop() {
             ch->HandleEvent();
         }
         currentActiveChannel_ = nullptr;
+        DoPendingFunctors();
     }
 }
 
@@ -77,6 +78,9 @@ bool EventLoop::HasChannel(Channel* ch) {
     return poller_->HasChannel(ch);
 }
 
+//
+// timerQueue_->AddTime is thread safe
+//
 TimerId EventLoop::RunAt(TimeStamp&& time, TimerCallback&& cb) {
     return timerQueue_->AddTimer(cb, time, 0.0);
 }
@@ -87,12 +91,12 @@ TimerId EventLoop::RunAt(const TimeStamp& time, const TimerCallback& cb) {
 
 TimerId EventLoop::RunAfter(double interval, TimerCallback&& cb) {
     TimeStamp time(AddTime(TimeStamp(TimeStamp::Now()), interval));
-    return timerQueue_->AddTimer(cb, time, 0.0);
+    return RunAt(time, cb);
 }
 
 TimerId EventLoop::RunAfter(double interval, const TimerCallback& cb) {
     TimeStamp time(AddTime(TimeStamp(TimeStamp::Now()), interval));
-    return timerQueue_->AddTimer(cb, time, 0.0);
+    return RunAt(time, cb);
 }
 
 // TODO: thread safe?
@@ -122,7 +126,10 @@ void EventLoop::RunInLoop(const Functor& func) {
 }
 
 void EventLoop::RunInLoop(Functor&& func) {
-    func();
+    if (IsInLoopThread())
+        func();
+    else
+        QueueInLoop(std::move(func));
 }
 
 void EventLoop::QueueInLoop(const Functor& func) {
@@ -165,6 +172,7 @@ void EventLoop::Cancel(TimerId timerid) {
 
 void EventLoop::DoPendingFunctors() {
     AssertInLoopThread();
+    TRACE("DoPendingFunctors");
     std::vector<Functor> funcs;
     {
         std::lock_guard<std::mutex> guard(mutex_);
