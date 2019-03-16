@@ -48,7 +48,7 @@ int func(int port) {
             con->Send(b);
             cnt++;
         });
-        loop->RunAfter(1, [=](){vec[i]->Send(buf, sizeof(buf));});
+        loop->RunAfter(1, [&vec,&buf,i](){vec[i]->Send(buf, sizeof(buf));});
     }
     loop->Loop(); 
 }

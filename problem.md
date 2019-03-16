@@ -12,3 +12,5 @@
 - 客户端主动断开连接，再次运行出现address in use
 
 - 记lambda表达式中& =误用引起的segment faul,程序中使用TcpConnPtr对TcpConn对象进行保存(shared_ptr)
+原因是：在lambda中采用&捕获了一个for循环中的局部变量i，在lambda被调用时i
+已经失效了，所以你访问的shared_ptr可能是未初始化的值
