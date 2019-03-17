@@ -18,7 +18,7 @@ int func() {
   Ip4Addr addr("127.0.0.1", 9999);
 
   EventLoop* loop = new EventLoop();
-  TcpServerPtr ptr = TcpServer::StartServer(loop, "127.0.0.1", 9999, true);
+  TcpServerPtr ptr = TcpServer::StartServer(loop, "127.0.0.1", 9999, 2, true);
   ptr->OnConnRead([](const TcpConnPtr& con)
   {
       Buffer& b = con->GetInput();
@@ -30,7 +30,7 @@ int func() {
 
 int main()
 {
-    SETLOGLEVEL("FATAL");
+//    SETLOGLEVEL("FATAL");
     std::thread t1(func);
    // std::thread t2(func);
   //  func();

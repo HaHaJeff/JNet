@@ -6,8 +6,22 @@
 TcpServer::TcpServer(EventLoop* loop):
     loop_(loop),
     listen_channel_(nullptr),
-    createcb_([]{return TcpConnPtr(new TcpConn());}) 
+    createcb_([]{return TcpConnPtr(new TcpConn());}),
+    threadPool_(new EventLoopPool(loop))
 {}
+
+TcpServer::~TcpServer() {
+    loop_->AssertInLoopThread();
+    TRACE("TcpServer::~TcpServer");
+
+    for (auto it : conns_) {
+        TcpConnPtr con = it;
+        con->GetLoop()->RunInLoop(std::bind(&TcpConn::Close, con));
+        it.reset();
+    }
+
+    delete listen_channel_;
+}
 
 int TcpServer::Bind(const std::string& host, short port, bool reusePort) {
     addr_ = Ip4Addr(host, port);
@@ -31,10 +45,16 @@ int TcpServer::Bind(const std::string& host, short port, bool reusePort) {
     return 0;
 }
 
-TcpServerPtr TcpServer::StartServer(EventLoop* loop, const std::string& host, short port, bool reusePort) {
+TcpServerPtr TcpServer::StartServer(EventLoop* loop, const std::string& host, short port, int threads, bool reusePort) {
     TcpServerPtr p(new TcpServer(loop));
     int r = p->Bind(host, port, reusePort);
+    p->Start(threads);
     return r == 0 ? p : nullptr;
+}
+
+void TcpServer::Start(int threads) {
+    SetThreadNum(threads);
+    threadPool_->Start();
 }
 
 
@@ -62,7 +82,9 @@ void TcpServer::HandleAccept() {
 
         auto addcon = [=] {
             TcpConnPtr con = createcb_();
-            con->Attach(loop_, cfd, local, peer);
+            EventLoop* ioLoop = threadPool_->GetNextLoop();
+            ioLoop->RunInLoop(std::bind(&TcpConn::Attach, con, ioLoop, cfd, local, peer));
+            conns_.insert(con);
             if (statecb_) {
                 con->OnState(statecb_);
             }
@@ -78,4 +100,20 @@ void TcpServer::HandleAccept() {
     if (lfd >= 0 && errno != EAGAIN && errno != EINTR) {
         WARN("accept return %d %d %s", cfd, errno, strerror(errno));
     }
+}
+
+void TcpServer::SetThreadNum(int num) {
+    threadPool_->SetThreadNum(num);
+}
+
+void TcpServer::RemoveConn(const TcpConnPtr& conn) {
+    loop_->RunInLoop(std::bind(&TcpServer::RemoveConnInLoop, this, conn));
+}
+
+void TcpServer::RemoveConnInLoop(const TcpConnPtr& conn) {
+    loop_->AssertInLoopThread();
+    TRACE("TcpServer::RemoveConnInLoop");
+    size_t n = conns_.erase(conn);
+    EventLoop* ioLoop = conn->GetLoop();
+    ioLoop->QueueInLoop(std::bind(&TcpConn::Close, conn));
 }

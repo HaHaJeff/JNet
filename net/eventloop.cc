@@ -114,7 +114,7 @@ void EventLoop::AssertInLoopThread() {
 }
 
 bool EventLoop::IsInLoopThread() {
-    static thread_local pid_t t = gettid();
+    pid_t t = gettid();
     return tid_ == t;
 }
 

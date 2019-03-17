@@ -41,6 +41,7 @@ public:
     TimerId RunAfter(double delay, const TimerCallback& cb);
     TimerId RunAfter(double delay, TimerCallback&& cb);
     void Quit();
+    pid_t GetTid() {return tid_;}
 
     void Cancel(TimerId timerId);
 private:
