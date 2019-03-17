@@ -1,0 +1,4 @@
+/net/*.o
+/examples/pingpong/*.o
+/examples/http/*.o
+/test/*.o
