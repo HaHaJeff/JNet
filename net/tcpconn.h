@@ -1,6 +1,5 @@
 #ifndef TCPCONN_H
 #define TCPCONN_H
-
 #include <memory>
 #include <assert.h>
 #include "socket.h"
@@ -41,14 +40,14 @@ public:
 
     template <class T=TcpConn>
     static TcpConnPtr CreateConnection(EventLoop* loop, const Ip4Addr& local, const Ip4Addr& peer, int timeout = 0) {
-        TcpConnPtr con(new T);
+        TcpConnPtr con = std::make_shared<T>();
         con->Connect(loop, local, peer, timeout);
         return con;
     }
 
     template <class T=TcpConn>
     static TcpConnPtr CreateConnection(EventLoop* loop, int fd, const Ip4Addr& local, const Ip4Addr& peer) {
-        TcpConnPtr con(new T);
+        TcpConnPtr con = std::make_shared<T>();
         con->Attach(loop, fd, local, peer);
         return con;
     }

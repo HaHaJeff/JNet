@@ -18,22 +18,25 @@ int func() {
   Ip4Addr addr("127.0.0.1", 9999);
 
   EventLoop* loop = new EventLoop();
-  TcpServerPtr ptr = TcpServer::StartServer(loop, "127.0.0.1", 9999, 2, true);
+  TcpServerPtr ptr = TcpServer::StartServer(loop, "127.0.0.1", 9999, 0, true);
   ptr->OnConnRead([](const TcpConnPtr& con)
   {
-      Buffer& b = con->GetInput();
+      TcpConnPtr ptr= con;
+      Buffer& b = ptr->GetInput();
       //std::cout <<  b.GetData() << std::endl;
-      con->Send(b);
+      if (ptr.get() == nullptr) std::cout << "nullptr" << std::endl;
+      ptr->Send(b);
   });
   loop->Loop();
 }
 
 int main()
 {
-//    SETLOGLEVEL("FATAL");
-    std::thread t1(func);
+    SETLOGLEVEL("FATAL");
+    func();
+//    std::thread t1(func);
    // std::thread t2(func);
   //  func();
-    t1.join();
+//   t1.join();
   //  t2.join();
 }

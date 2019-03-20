@@ -28,12 +28,12 @@ int func(int port) {
 
     EventLoop* loop = new EventLoop();
     std::vector<TcpConnPtr> vec;
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 20; i++) {
         Ip4Addr local1("127.0.0.1", port+i);
         auto ptr = TcpConn::CreateConnection<TcpConn>(loop, local1, ip4);
         vec.push_back(ptr);
         int cnt = 1;
-        int k = 10000;
+        int k = 1000;
         TimeStamp start = TimeStamp::Now();  
         vec[i]->OnRead([&](const TcpConnPtr& con){
             if (cnt >= k) {

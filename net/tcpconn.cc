@@ -4,7 +4,6 @@
 #include <poll.h>
 #include <functional>
 
-
 TcpConn::TcpConn(EventLoop* loop, const Ip4Addr& local, const Ip4Addr& peer, int timeout) :
     loop_(loop),
     localAddr_(local),
@@ -68,7 +67,7 @@ void TcpConn::Connect(EventLoop* loop, const Ip4Addr& local, const Ip4Addr& peer
     Attach(loop, fd, localAddr_, peerAddr_);
     if (timeout) {
         TcpConnPtr con = shared_from_this();
-        timeoutId_ = loop_->RunAfter(timeout, [con] {
+        timeoutId_ = con->loop_->RunAfter(timeout, [con] {
             if (con->GetState() == kHandShakeing) { con->channel_->Close(); }
         });
     }
@@ -77,7 +76,7 @@ void TcpConn::Connect(EventLoop* loop, const Ip4Addr& local, const Ip4Addr& peer
 void TcpConn::Close() {
     if (channel_ != nullptr) {
         TcpConnPtr con = shared_from_this();
-        loop_->RunInLoop([con]{ if (con->channel_) con->channel_->Close(); });
+        con->loop_->RunInLoop([=]{ if (con->channel_) con->channel_->Close(); });
     }
 }
 
@@ -90,11 +89,12 @@ void TcpConn::CleanUp(const TcpConnPtr& con) {
     } else {
         state_ = State::kClosed;
     }
-
+    
+    // FIXME: origin code is channel_, however channel_ is unique_ptr
     TRACE("tcp closeing %s - %s fd %d %d",
         localAddr_.ToString().c_str(),
         peerAddr_.ToString().c_str(),
-        channel_ ? channel_->GetFd(): -1, errno);
+        channel_.get() == nullptr ? -1 : channel_->GetFd(), errno);
     loop_->Cancel(timeoutId_);
 
     if (statecb_) {
@@ -103,7 +103,9 @@ void TcpConn::CleanUp(const TcpConnPtr& con) {
 
     readcb_ = writecb_ = statecb_ = nullptr;
     auto ch = channel_.release();
+    assert(channel_.get() == nullptr);
     delete ch;
+    ch = nullptr;
 }
 
 void TcpConn::HandleRead(const TcpConnPtr& con) {
@@ -153,6 +155,7 @@ int TcpConn::HandleHandShake(const TcpConnPtr& con) {
         }
     } else {
         TRACE("poll fd %d return %d revents %d", channel_->GetFd(), r, pfd.revents);
+        state_ = State::kFailed;
         CleanUp(con);
         return -1;
     }
@@ -197,25 +200,6 @@ ssize_t TcpConn::ISend(const char* buf, size_t len) {
 }
 
 void TcpConn::Send(Buffer& message) {
-    /*
-    if (state_ != kConnected) {
-        WARN("TcpConn::Send() not connected, give up send");
-        return;
-    }
-
-    if (loop_->IsInLoopThread()) {
-        SendInLoop(message.GetData(), message.GetSize());
-        message.Consume(message.GetSize());
-    } else {
-        loop_->RunInLoop(
-            [&]()
-            {
-                SendInLoop(message.GetData(), message.GetSize());
-                message.Consume(message.GetSize());
-            }
-        );
-    }
-    */
     if (channel_) {
         // 如果channel开启了写，则将message直接添加到output中
         if (channel_->IsWriting()) {
@@ -242,10 +226,10 @@ void TcpConn::Send(const char* message, size_t len) {
         SendInLoop(message, len);
         return;
     } else {
-        loop_->RunInLoop(
-            [&]()
-            { this->SendInLoop(message, len);}
-        );
+        TcpConnPtr conn = shared_from_this();
+        conn->loop_->RunInLoop(
+            [=]()
+            { conn->SendInLoop(std::string(message).c_str(), len);});
     }
 }
 

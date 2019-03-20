@@ -14,7 +14,7 @@
 
 class TcpServer;
 typedef std::shared_ptr<TcpServer> TcpServerPtr;
-class TcpServer : private Noncopyable {
+class TcpServer : Noncopyable {
 public:
     TcpServer(EventLoop* loop);
     ~TcpServer();

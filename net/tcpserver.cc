@@ -2,11 +2,12 @@
 #include "log.h"
 #include <fcntl.h>
 #include <unistd.h>
+#include <iostream>
 
 TcpServer::TcpServer(EventLoop* loop):
     loop_(loop),
     listen_channel_(nullptr),
-    createcb_([]{return TcpConnPtr(new TcpConn());}),
+    createcb_([]{TcpConnPtr con = std::make_shared<TcpConn>();return con;}),
     threadPool_(new EventLoopPool(loop))
 {}
 
@@ -16,10 +17,9 @@ TcpServer::~TcpServer() {
 
     for (auto it : conns_) {
         TcpConnPtr con = it;
-        con->GetLoop()->RunInLoop(std::bind(&TcpConn::Close, con));
         it.reset();
+        con->GetLoop()->RunInLoop(std::bind(&TcpConn::Close, con));
     }
-
     delete listen_channel_;
 }
 
@@ -40,13 +40,13 @@ int TcpServer::Bind(const std::string& host, short port, bool reusePort) {
     FATALIF(r, "listen failed %d %s", errno, strerror(errno));
     INFO("fd %d listening at %s", fd, addr_.ToString().c_str());
     listen_channel_ = new Channel(loop_, fd, Channel::kReadEvent);
-    listen_channel_->SetReadCallback([this]{ HandleAccept();});
+    listen_channel_->SetReadCallback([=]{ HandleAccept();});
     listen_channel_->AddToLoop();
     return 0;
 }
 
 TcpServerPtr TcpServer::StartServer(EventLoop* loop, const std::string& host, short port, int threads, bool reusePort) {
-    TcpServerPtr p(new TcpServer(loop));
+    TcpServerPtr p = std::make_shared<TcpServer>(loop);
     int r = p->Bind(host, port, reusePort);
     p->Start(threads);
     return r == 0 ? p : nullptr;
@@ -56,7 +56,6 @@ void TcpServer::Start(int threads) {
     SetThreadNum(threads);
     threadPool_->Start();
 }
-
 
 void TcpServer::HandleAccept() {
     struct sockaddr_in raddr;
@@ -80,22 +79,25 @@ void TcpServer::HandleAccept() {
         r = fcntl(cfd, F_SETFD, FD_CLOEXEC);
         FATALIF(r, "set fd FD_CLOEXEC failed");
 
-        auto addcon = [=] {
-            TcpConnPtr con = createcb_();
-            EventLoop* ioLoop = threadPool_->GetNextLoop();
-            ioLoop->RunInLoop(std::bind(&TcpConn::Attach, con, ioLoop, cfd, local, peer));
-            conns_.insert(con);
-            if (statecb_) {
-                con->OnState(statecb_);
-            }
-            if (readcb_) {
-                con->OnRead(readcb_);
-            }
-            if (msgcb_) {
-                con->OnMsg(codec_->Clone(), msgcb_);
-            }
-        };
-        addcon();
+        // auto addcon = [=] {
+        EventLoop* ioLoop = threadPool_->GetNextLoop();
+        TcpConnPtr con = createcb_();
+        // FIXME: always hold shared_ptr in tcpserver
+        conns_.insert(con);
+        //con->Attach(ioLoop, cfd, local, peer);
+        //ioLoop->RunInLoop([=](){con->Attach(ioLoop, cfd, local, peer);});
+        if (statecb_) {
+            con->OnState(statecb_);
+        }
+        if (readcb_) {
+            con->OnRead(readcb_);
+        }
+        if (msgcb_) {
+            con->OnMsg(codec_->Clone(), msgcb_);
+        }
+        ioLoop->RunInLoop(std::bind(&TcpConn::Attach, con, ioLoop, cfd, local, peer));
+        //};
+        //addcon();
     }
     if (lfd >= 0 && errno != EAGAIN && errno != EINTR) {
         WARN("accept return %d %d %s", cfd, errno, strerror(errno));

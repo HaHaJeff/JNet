@@ -103,8 +103,8 @@ std::string Channel::EventsToString(int fd, short ev) const {
 void Channel::Close() {
     if (fd_ >= 0) {
         TRACE("close channel %ld fd %d", (long)id_, fd_);
-        RemoveFromLoop();
         close(fd_);
+        RemoveFromLoop();
         fd_ = -1;
     }
 }

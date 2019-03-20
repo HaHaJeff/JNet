@@ -1,4 +1,4 @@
-OPT ?= -g2
+OPT ?= -O0 -g
 
 CFLAGS += -I./net $(OPT)
 CXXFLAGS += -I./net $(OPT) -std=c++11 -pthread

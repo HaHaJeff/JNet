@@ -12,5 +12,10 @@
 - 客户端主动断开连接，再次运行出现address in use
 
 - 记lambda表达式中& =误用引起的segment faul,程序中使用TcpConnPtr对TcpConn对象进行保存(shared_ptr)
-原因是：在lambda中采用&捕获了一个for循环中的局部变量i，在lambda被调用时i
-已经失效了，所以你访问的shared_ptr可能是未初始化的值
+原因是：在lambda中采用&捕获了一个for循环中的局部变量i，在lambda被调用时已经失效了，所以你通过下标i访问的shared_ptr可能是未初始化的值
+
+- 不经常错误，如果对断断开连接，可能出现segment fault，原因是在调用HandleWrite时出现 TcpConnPtr的count=1,但是this=0x0
+- 配置：双核 i5
+- bug场景：server开启一个eventloop线程
+- 记tcpserver在client断开时可能出现core dump：也是由于shared_ptr使用不当造成的，每次server处理accept事件的时候，需要创建一个tcpconnptr对象并为该对象绑定Attach函数，为了保证线程安全，需要调用ioLoop的RunInLoop函数，然后将con insert到server的map中，这里会出现问题
+- 在HandleAccept不使用lambda完成tcpconn的初始化 ，为什么？ 
