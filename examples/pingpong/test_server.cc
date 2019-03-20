@@ -18,7 +18,7 @@ int func() {
   Ip4Addr addr("127.0.0.1", 9999);
 
   EventLoop* loop = new EventLoop();
-  TcpServerPtr ptr = TcpServer::StartServer(loop, "127.0.0.1", 9999, 0, true);
+  TcpServerPtr ptr = TcpServer::StartServer(loop, "127.0.0.1", 9999, 2, true);
   ptr->OnConnRead([](const TcpConnPtr& con)
   {
       TcpConnPtr ptr= con;

@@ -79,13 +79,11 @@ void TcpServer::HandleAccept() {
         r = fcntl(cfd, F_SETFD, FD_CLOEXEC);
         FATALIF(r, "set fd FD_CLOEXEC failed");
 
-        // auto addcon = [=] {
         EventLoop* ioLoop = threadPool_->GetNextLoop();
         TcpConnPtr con = createcb_();
         // FIXME: always hold shared_ptr in tcpserver
         conns_.insert(con);
-        //con->Attach(ioLoop, cfd, local, peer);
-        //ioLoop->RunInLoop([=](){con->Attach(ioLoop, cfd, local, peer);});
+        ioLoop->RunInLoop([=](){con->Attach(ioLoop, cfd, local, peer);});
         if (statecb_) {
             con->OnState(statecb_);
         }
@@ -95,9 +93,6 @@ void TcpServer::HandleAccept() {
         if (msgcb_) {
             con->OnMsg(codec_->Clone(), msgcb_);
         }
-        ioLoop->RunInLoop(std::bind(&TcpConn::Attach, con, ioLoop, cfd, local, peer));
-        //};
-        //addcon();
     }
     if (lfd >= 0 && errno != EAGAIN && errno != EINTR) {
         WARN("accept return %d %d %s", cfd, errno, strerror(errno));
