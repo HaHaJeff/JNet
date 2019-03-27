@@ -83,6 +83,7 @@ public:
     void Close();
 
     void CleanUp(const TcpConnPtr& con);
+    void Shutdown();
 
     Buffer& GetInput() { return input_; }
     Buffer& GetOutput() { return output_; }

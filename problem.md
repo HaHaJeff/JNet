@@ -19,3 +19,5 @@
 - bug场景：server开启一个eventloop线程
 - 记tcpserver在client断开时可能出现core dump：也是由于shared_ptr使用不当造成的，每次server处理accept事件的时候，需要创建一个tcpconnptr对象并为该对象绑定Attach函数，为了保证线程安全，需要调用ioLoop的RunInLoop函数，然后将con insert到server的map中，这里会出现问题
 - 在HandleAccept不使用lambda完成tcpconn的初始化 ，为什么？ 
+
+服务端在read clientfd返回0时，不应该直接调用tcpconn::close函数关闭tcpconn，而是应该采用RAII机制完成

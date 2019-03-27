@@ -273,3 +273,7 @@ void TcpConn::SendMsg(std::string msg) {
     codec_->Encode(msg, b);
     SendOutput();
 }
+
+void TcpConn::Shutdown() {
+
+}
