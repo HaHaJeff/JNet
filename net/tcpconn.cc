@@ -3,6 +3,7 @@
 #include "channel.h"
 #include <poll.h>
 #include <functional>
+#include <sys/socket.h>
 
 TcpConn::TcpConn(EventLoop* loop, const Ip4Addr& local, const Ip4Addr& peer, int timeout) :
     loop_(loop),
@@ -275,5 +276,13 @@ void TcpConn::SendMsg(std::string msg) {
 }
 
 void TcpConn::Shutdown() {
+    if (state_ == State::kConnected) {
+        state_ = State::kClosed;
+        TcpConnPtr con = shared_from_this();
+        loop_->RunInLoop([=](){con->ShutdownInLoop();});
+    }
+}
 
+void TcpConn::ShutdownInLoop() {
+    shutdown(fd_, SHUT_WR);
 }

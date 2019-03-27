@@ -84,6 +84,7 @@ public:
 
     void CleanUp(const TcpConnPtr& con);
     void Shutdown();
+    void ShutdownInLoop();
 
     Buffer& GetInput() { return input_; }
     Buffer& GetOutput() { return output_; }
