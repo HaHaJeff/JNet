@@ -106,3 +106,18 @@ pipe可以，生成一队fd，并写readfd加入epoll中。
 **处理读事件**
 - muduo：在handlRead中显式调用messageCallback_，如果没有设置messageCallback_，那么数据会在inputBuffer累积（因为defaultMessageCallback除了写日志啥也不做)
 - handy: 在handleRead中只是将数据读入buffer中，只有设置onRead，才会改变readcb_，而OnMsg其实就是改变readcb_, 在handleRead中是while的，当read读完之后才会调用readcb_
+
+### rpc
+使用protobuf预留的rpc框架，并使用protobuf作为IDL
+需要实现的有RpcChannel, SpecificService, RpcServer, ProtobufCodec
+
+调用流程
+1. Echo，对应着使用EchoSerivce_Stub的CallMethod
+2. 在CallMethod中调用channel_->CallMethod
+3. channel_->CallMethod负责网络逻辑，这里可以使用TcpConnPtr对象，设置messageback以及rpcmessagecallback
+    1. messagecallback用于conn->HandleRead中调用，rpcmessagecallback用于在messagecallback中调用，即具体的rpc调用将在这里产生。分为request以及response两个逻辑
+    2. client端负责response，server负责request
+    3. rpcchannel需要和map<services>耦合，因为在request中需要确定具体的service，如何确定具体的service可以借鉴muduo的思路，即利用protobuf提供的反射机制完成
+4. 调用send函数将消息发送出去
+5. 服务端处理HandleRead调用messagecallback，满足codec条件时调用rpcmessagecallback,构造response并send回client
+6. 同理客户端调用，不过这里还会过一次额Donecallback，为CallMethod方法的最后一个参数，因为在第4步并不是同步等待的，Donecallback需要进行最后的处理工作,即完成对response的处理，所以response需要分配在heap上或者在调用Donecallback前分配

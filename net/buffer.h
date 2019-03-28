@@ -5,7 +5,7 @@
 #include <string>
 class Buffer {
   public:
-    Buffer() : buf_(nullptr), b_(0), e_(0), cap_(0), exp_(512) { }
+    Buffer() : buf_(nullptr), b_(0), e_(0), cap_(0), exp_(4096) { }
 
     ~Buffer() { delete[] buf_; }
 
