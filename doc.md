@@ -107,6 +107,19 @@ pipe可以，生成一队fd，并写readfd加入epoll中。
 - muduo：在handlRead中显式调用messageCallback_，如果没有设置messageCallback_，那么数据会在inputBuffer累积（因为defaultMessageCallback除了写日志啥也不做)
 - handy: 在handleRead中只是将数据读入buffer中，只有设置onRead，才会改变readcb_，而OnMsg其实就是改变readcb_, 在handleRead中是while的，当read读完之后才会调用readcb_
 
+### 优雅的关闭连接
+- close：递减描述符引用计数，当计数为0时，开始实施清理工作。
+    - 如果关闭监听套接字，将会向那些处于SYN_RECV状态的fd发送RST报文
+    - 如果关闭普通套接字
+        - 接收缓冲区内有数据，那么直接丢弃并向对方发送RST报文
+        - 发送缓冲区内有数据，close操作将在最后一个报文出加上FIN字段，但是此时连接没了，进程没有办法感知到数据能否被对端确认
+- shutdown：断开连接
+    - 如果关闭监听套接字，且关闭选项是read，那么将会向那些处于SYN_RECV状态的fd发送RST报文,否则啥也不干
+    - 如果关闭普通套接字，且关闭选项是read，仅仅只是在本端做个标记，无法read数据而已
+    - 如果关闭普通套接字，且关闭选项是write
+        - 如果接收缓冲区内有数据，无所谓吗，因为还可以读呀
+        - 如果发送缓冲区内有数据，同理还是在最后一个数据报处添加FIN字段，那么对断read返回0后，采取关闭措施，本端还是可以通过read 0感知到，哦上一次的数据被接收了
+
 ### rpc
 使用protobuf预留的rpc框架，并使用protobuf作为IDL
 需要实现的有RpcChannel, SpecificService, RpcServer, ProtobufCodec
