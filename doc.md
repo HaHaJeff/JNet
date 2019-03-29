@@ -121,3 +121,14 @@ pipe可以，生成一队fd，并写readfd加入epoll中。
 4. 调用send函数将消息发送出去
 5. 服务端处理HandleRead调用messagecallback，满足codec条件时调用rpcmessagecallback,构造response并send回client
 6. 同理客户端调用，不过这里还会过一次额Donecallback，为CallMethod方法的最后一个参数，因为在第4步并不是同步等待的，Donecallback需要进行最后的处理工作,即完成对response的处理，所以response需要分配在heap上或者在调用Donecallback前分配
+
+#### rpc设计
+- service
+protobuf rpc service的抽象接口，有client的stub以及server负责实现
+- client stub
+实现service_stub类，涉及到rpcchannel(rpcchannel负责网络通信, 组成对象包括：TcpConn)
+- server
+管理具体的services_，一般采用map实现，key为string，value为services
+- rpcchannel
+    - 在client处理response消息
+    - 在server处理request消息
