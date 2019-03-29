@@ -3,9 +3,11 @@
 #include <algorithm>
 #include <string.h>
 #include <string>
+#include <assert.h>
 class Buffer {
   public:
-    Buffer() : buf_(nullptr), b_(0), e_(0), cap_(0), exp_(4096) { }
+    static const size_t kPrepend = 4;
+    Buffer() : buf_(nullptr), b_(kPrepend), e_(kPrepend), cap_(kPrepend), exp_(4096+kPrepend) { }
 
     ~Buffer() { delete[] buf_; }
 
@@ -45,6 +47,17 @@ class Buffer {
 
     Buffer& Append(const std::string& str) {
       return Append(str.c_str(), str.size());
+    }
+
+    size_t PrependableBytes() {
+        return b_;
+    }
+
+    void Prepend(const void* data, size_t len) {
+        assert(len <= PrependableBytes());
+        b_ -= len; 
+        const char* d = static_cast<const char*>(data);
+        std::copy(d, d+len, buf_+b_);
     }
 
     Buffer& Append(const char* p, size_t len) {

@@ -1,0 +1,18 @@
+syntax "proto2"
+
+enum MessageType {
+    REQUEST=1;
+    RESPOSE=2;
+}
+
+// 用于client server通信的message
+// 在onRpcMessage中通过messagetype判断client处理还是server处理
+message RpcMessage {
+    required MessageType=1;
+    required fixed64 id=2;
+
+    optional string service=3;
+    optional string method=4;
+    optional bytes request=5;
+    optional bytes response=6;
+}
