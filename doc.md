@@ -145,3 +145,22 @@ protobuf rpc service的抽象接口，有client的stub以及server负责实现
 - rpcchannel
     - 在client处理response消息
     - 在server处理request消息
+
+两端消息格式
+``` cpp
+enum MessageType {
+    REQUEST=1;
+    RESPONSE=2;
+}
+
+message RpcMessage {
+    required MessageType type=1;
+    required fixed64 id=2;
+
+    optional string service=3;
+    optional string method=4;  // MethodDescriptor->name()
+    optional bytes request=5;     // 对应request的序列化
+    optional bytes response=6; //对应response的序列话
+}
+
+```
