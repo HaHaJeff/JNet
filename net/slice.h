@@ -39,13 +39,13 @@ class Slice {
   Slice& operator=(const Slice&) = default;
 
   // Return a pointer to the beginning of the referenced data
-  const char* GetData() const { return data_; }
+  const char* data() const { return data_; }
 
   // Return the length (in bytes) of the referenced data
-  size_t GetSize() const { return size_; }
+  size_t size() const { return size_; }
 
   // Return true iff the length of the referenced data is zero
-  bool Empty() const { return size_ == 0; }
+  bool empty() const { return size_ == 0; }
 
   // Return the ith byte in the referenced data.
   // REQUIRES: n < size()
@@ -55,10 +55,10 @@ class Slice {
   }
 
   // Change this slice to refer to an empty array
-  void Clear() { data_ = ""; size_ = 0; }
+  void clear() { data_ = ""; size_ = 0; }
 
   // Drop the first "n" bytes from this slice.
-  void RemovePrefix(size_t n) {
+  void remove_prefix(size_t n) {
     assert(n <= size());
     data_ += n;
     size_ -= n;
@@ -71,10 +71,10 @@ class Slice {
   //   <  0 iff "*this" <  "b",
   //   == 0 iff "*this" == "b",
   //   >  0 iff "*this" >  "b"
-  int Compare(const Slice& b) const;
+  int compare(const Slice& b) const;
 
   // Return true iff "x" is a prefix of "*this"
-  bool StartWith(const Slice& x) const {
+  bool starts_with(const Slice& x) const {
     return ((size_ >= x.size_) &&
             (memcmp(data_, x.data_, x.size_) == 0));
   }
@@ -93,7 +93,7 @@ inline bool operator!=(const Slice& x, const Slice& y) {
   return !(x == y);
 }
 
-inline int Slice::Compare(const Slice& b) const {
+inline int Slice::compare(const Slice& b) const {
   const size_t min_len = (size_ < b.size_) ? size_ : b.size_;
   int r = memcmp(data_, b.data_, min_len);
   if (r == 0) {
@@ -102,6 +102,7 @@ inline int Slice::Compare(const Slice& b) const {
   }
   return r;
 }
+
 
 
 #endif  // STORAGE_LEVELDB_INCLUDE_SLICE_H_

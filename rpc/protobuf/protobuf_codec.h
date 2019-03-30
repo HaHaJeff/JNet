@@ -1,9 +1,13 @@
 #ifndef PROTOBUFCODEC
 #define PROTOBUFCODEC
 
-#include "../../net/util.h"
-#include "../../net/timestamp.h"
-#include "../../net/slice.h"
+#include "util.h"
+#include "timestamp.h"
+#include "slice.h"
+#include "buffer.h"
+#include "channel.h"
+#include "log.h"
+#include "tcpconn.h"
 #include <memory>
 
 namespace google
@@ -17,20 +21,48 @@ typedef std::shared_ptr<::google::protobuf::Message> MessagePtr;
 
 class ProtobufCodec {
 public:
-    // ProtobufMessageCallback在Codec成功解析消息后调用
+    // 
+    // call ProtobufMessageCallback after Codec get the full packet
+    // TODO: add Message arguement
+    //
     typedef std::function<void (const TcpConnPtr&, TimeStamp)> ProtobufMessageCallback;
-    ProtobufCodec(const ::google::protobuf::Message* prototype, Slice tag, ProtobufMessageCallback& msgcallback);
+    ProtobufCodec(const ::google::protobuf::Message* prototype, const ProtobufMessageCallback& msgcallback);
 
+    // 
+    // Send serialize message into Buffer, then call TcpConn send
+    //
     void Send(const TcpConnPtr& conn, const ::google::protobuf::Message& message);
-    void onMessage(const TcpConnPtr& conn, Buffer* buf, TimeStamp receiveTime); 
+
+    //
+    // if buf->size() >= packet len, call messageCallback_
+    //
+    void OnMessage(const TcpConnPtr& conn, Buffer* buf, TimeStamp receiveTime); 
 
 private:
-    void FillEmptyBuffer(Buffer* buf, const ::google::protobuf::Message& message);
+    //
+    // len + payload, simpliefy the transform data format
+    //
+    void FillEmptyBuffer(const ::google::protobuf::Message& message, Buffer* buf);
+
+    // 
+    // just only serialize ::google::protobuf::Message
+    //
     int SerializeToBuffer(const ::google::protobuf::Message& message, Buffer* buf);
-    int ParseFromBuffer(const Buffer* buf, ::google::protobuf::Message& message);
+
+    // 
+    // just parse buf.data + kHeadLen(in prependable bytes) into message
+    //
+    int ParseFromBuffer(::google::protobuf::Message& message, const Buffer* buf);
 
 private:
+    //
+    // TODO
+    //
     static int32_t Checksum(const void* buf, int len) {return 0;}
+
+    // 
+    // TODO
+    // 
     static bool ValidateChecksum(const char* buf, int len) {return false;} 
 
 private:
