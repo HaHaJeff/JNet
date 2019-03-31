@@ -1,4 +1,4 @@
-OPT ?= -O2 -pg
+OPT ?= -O2 -g
 
 CXXFLAGS += -I./net -I./rpc/protobuf -I./rpc/protorpc -lprotobuf $(OPT) -std=c++11 -pthread
 
@@ -31,7 +31,7 @@ test_server: examples/pingpong/test_server.o $(NET_OBJ)
 http_server: examples/http/http_server.o $(NET_OBJ)
 	$(CXX) $^ -o $@ ${CXXFLAGS}
 
-test_codec: unit_test/unit_test.o unit_test/test_codec.o $(NET_OBJ) $(RPC_PROTOBUF_OBJ) 
+test_codec: unit_test/unit_test.o unit_test/test_codec.o $(NET_OBJ) $(RPC_PROTOBUF_OBJ) $(RPC_OBJ)
 	$(CXX) $^ -o $@ $(CXXFLAGS)
 
 # 隐含规则包括了下面这个，但是写出来是最好的

@@ -25,7 +25,7 @@ public:
     // call ProtobufMessageCallback after Codec get the full packet
     // TODO: add Message arguement
     //
-    typedef std::function<void (const TcpConnPtr&, TimeStamp)> ProtobufMessageCallback;
+    typedef std::function<void (const TcpConnPtr&, const MessagePtr&, TimeStamp)> ProtobufMessageCallback;
     ProtobufCodec(const ::google::protobuf::Message* prototype, const ProtobufMessageCallback& msgcallback);
 
     // 
@@ -37,8 +37,8 @@ public:
     // if buf->size() >= packet len, call messageCallback_
     //
     void OnMessage(const TcpConnPtr& conn, Buffer* buf, TimeStamp receiveTime); 
-
 private:
+
     //
     // len + payload, simpliefy the transform data format
     //
@@ -52,7 +52,7 @@ private:
     // 
     // just parse buf.data + kHeadLen(in prependable bytes) into message
     //
-    int ParseFromBuffer(::google::protobuf::Message& message, const Buffer* buf);
+    int ParseFromBuffer(::google::protobuf::Message& message, const char* buf, size_t len);
 
 private:
     //
@@ -64,6 +64,8 @@ private:
     // TODO
     // 
     static bool ValidateChecksum(const char* buf, int len) {return false;} 
+
+    static const int kHeaderLen = 4;
 
 private:
     const ::google::protobuf::Message* prototype_;

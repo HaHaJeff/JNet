@@ -164,3 +164,6 @@ message RpcMessage {
 }
 
 ```
+
+- buffer
+在buffer中添加一个额外的字段，用于保存应急信息

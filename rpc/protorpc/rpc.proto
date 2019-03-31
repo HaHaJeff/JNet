@@ -1,4 +1,4 @@
-syntax "proto2"
+syntax = "proto2";
 
 enum MessageType {
     REQUEST=1;
@@ -8,7 +8,7 @@ enum MessageType {
 // 用于client server通信的message
 // 在onRpcMessage中通过messagetype判断client处理还是server处理
 message RpcMessage {
-    required MessageType=1;
+    required MessageType type=1;
     required fixed64 id=2;
 
     optional string service=3;

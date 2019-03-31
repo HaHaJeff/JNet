@@ -4,10 +4,10 @@
 #include <string.h>
 #include <string>
 #include <assert.h>
+#include <iostream>
 class Buffer {
   public:
-    static const size_t kPrepend = 4;
-    Buffer() : buf_(nullptr), b_(kPrepend), e_(kPrepend), cap_(kPrepend), exp_(4096+kPrepend) { }
+    Buffer() : buf_(nullptr), b_(0), e_(0), cap_(0), exp_(4096), extra_(0) { }
 
     ~Buffer() { delete[] buf_; }
 
@@ -16,6 +16,16 @@ class Buffer {
       buf_ = nullptr;
       cap_ = 0;
       b_ = e_ = 0;
+    }
+
+    const char* Peek() const {
+        return Begin();
+    }
+
+    int32_t PeekInt32() const { 
+        int32_t be32 = 0;
+        ::memcpy(&be32, Begin(), sizeof be32);
+        return be32;
     }
 
     size_t GetSize() const { return e_ - b_; }
@@ -51,6 +61,12 @@ class Buffer {
 
     size_t PrependableBytes() {
         return b_;
+    }
+
+    void EnsureWriteableBytes(size_t len) {
+        if (GetSize() < len) {
+            MakeRoom(len);
+        }
     }
 
     void Prepend(const void* data, size_t len) {
@@ -91,6 +107,7 @@ class Buffer {
       CopyFrom(b);
       return *this;
     }
+    int extra_;
   private:
     char* buf_;
     size_t b_, e_, cap_, exp_;
