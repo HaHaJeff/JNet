@@ -2,3 +2,5 @@
 /examples/pingpong/*.o
 /examples/http/*.o
 /test/*.o
+/rpc/protobuf/*.o
+/rpc/protorpc/*.o
