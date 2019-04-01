@@ -23,6 +23,7 @@ int func() {
   {
       TcpConnPtr ptr= con;
       Buffer& b = ptr->GetInput();
+      std::cout << b.GetData() << std::endl;
       ptr->Send(b);
   });
   loop->Loop();
