@@ -20,11 +20,11 @@ int func(int port) {
     //Ip4Addr local2("127.0.0.1", port+1);
     Ip4Addr ip4("127.0.0.1", 9999);
 
-    char buf[27];
-    for (int i = 0; i < 26; i++) {
-        buf[i] = 'a'+i;
+    char buf[4096];
+    for (int i = 0; i < 4095; i++) {
+        buf[i] = 'a';
     }
-    buf[26] = '\0';
+    buf[4096] = '\0';
 
     EventLoop* loop = new EventLoop();
     std::vector<TcpConnPtr> vec;
