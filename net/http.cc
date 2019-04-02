@@ -213,9 +213,8 @@ HttpServer::HttpServer(EventLoop* loop): TcpServer(loop) {
         con.SendResponse();
     };
 
-    conncb_ = [] { return TcpConnPtr(new TcpConn);};
-    OnConnCreate([this]() {
-        HttpConnPtr hcon(conncb_());
+    OnConnCreate([this](const TcpConnPtr& conn) {
+        HttpConnPtr hcon(conn);
         hcon.OnHttpMsg([this](const HttpConnPtr& hcon) {
             HttpRequest& req = hcon.GetRequest();
             auto p = cbs_.find(req.GetMethod());

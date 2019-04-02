@@ -14,16 +14,16 @@ void ProtobufCodec::Send(const TcpConnPtr& conn, const ::google::protobuf::Messa
     conn->Send(buf);
 }
 
-void ProtobufCodec::OnMessage(const TcpConnPtr& conn, Buffer* buf, TimeStamp receiveTime) {
-    const int32_t len = buf->extra_;
-    
+void ProtobufCodec::OnMessage(const TcpConnPtr& conn) {
+    Buffer& buf = conn->GetInput();
+    const int32_t len = buf.extra_;
     //
     // receive a full packet
     //
-    if (buf->GetSize() >= static_cast<size_t>(len)) {
+    if (buf.GetSize() >= static_cast<size_t>(len)) {
         MessagePtr message(prototype_->New());
-        ParseFromBuffer(*message, buf->GetData(), len);
-        messageCallback_(conn, message, receiveTime);
+        ParseFromBuffer(*message, buf.GetData(), len);
+        messageCallback_(conn, message);
     }
 }
 

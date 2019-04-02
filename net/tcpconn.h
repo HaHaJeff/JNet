@@ -8,28 +8,11 @@
 #include "util.h"
 #include "eventloop.h"
 #include "codec.h"
-
-struct AutoContext: Noncopyable {
-  void* ctx;
-  std::function<void()> ctxDel;
-  AutoContext():ctx(nullptr) {}
-
-  template<class T>
-  T& context() {
-    if (nullptr == ctx) {
-        ctx = new T();
-        ctxDel = [this] {delete (T*)ctx;};
-    }
-    return *(T*)ctx;
-  }
-
-  ~AutoContext() { if (ctx != nullptr) ctxDel(); }
-};
+#include "any.h"
 
 class TcpConn;
 typedef std::shared_ptr<TcpConn> TcpConnPtr;
 typedef std::function<void(const TcpConnPtr&)> TcpCallBack;
-typedef std::function<void(const TcpConnPtr&, std::string& msg)> MsgCallBack;
 
 class TcpConn : public std::enable_shared_from_this<TcpConn>, private Noncopyable{
 public:
@@ -76,7 +59,6 @@ public:
     void OnWrite(const TcpCallBack& cb) { writecb_ = cb; }
     //状态改变时回调
     void OnState(const TcpCallBack& cb) { statecb_ = cb; }
-    void OnMsg(CodecBase* codec, const MsgCallBack& cb);
     void SendMsg(std::string msg);
 
     void Connect(EventLoop* loop, const Ip4Addr& local, const Ip4Addr& peer, int timeout=0);
@@ -88,7 +70,10 @@ public:
 
     Buffer& GetInput() { return input_; }
     Buffer& GetOutput() { return output_; }
-    AutoContext& GetContext() { return ctx_;}
+    Any& GetContext() { return ctx_;}
+    template<typename T>
+    void SetContext(T& ctx) { ctx_ = ctx; }
+
 
     void Attach(EventLoop* loop, int fd, const Ip4Addr& local, const Ip4Addr& peer);
 private:
@@ -108,8 +93,7 @@ private:
     TcpCallBack statecb_;
     std::unique_ptr<Socket> socket_;
     std::unique_ptr<Channel> channel_;
-    std::unique_ptr<CodecBase> codec_;
-    AutoContext ctx_;
+    Any ctx_;
     int connectedTimeout_;
     int connectTimeout_;
     TimerId timeoutId_;

@@ -17,24 +17,25 @@ typedef std::shared_ptr<TcpServer> TcpServerPtr;
 class TcpServer : Noncopyable {
 public:
     TcpServer(EventLoop* loop);
+    TcpServer(EventLoop* loop, const Ip4Addr& addr);
     ~TcpServer();
+    int Bind(bool reusePort = false);
     int Bind(const std::string& host, short port, bool reusePort=false);
     static TcpServerPtr StartServer(EventLoop* loop, const std::string& host, short port, int threads = 0, bool reusePort=false);
     Ip4Addr GetAddr() { return addr_;}
     EventLoop* GetLoop() { return loop_; }
     void SetThreadNum(int num);
-    void OnConnCreate(const std::function<TcpConnPtr()>& cb) { createcb_ = cb;}
+    void OnConnCreate(const std::function<void(const TcpConnPtr&)>& cb) { createcb_ = cb;}
     void OnConnState(const TcpCallBack& cb) { statecb_ = cb;}
-    void OnConnRead(const TcpCallBack& cb) { readcb_ = cb; assert(!msgcb_);}
-    void OnConnMsg(CodecBase* codec, const MsgCallBack& cb) { codec_.reset(codec); msgcb_ = cb; assert(!readcb_);}
+    void OnConnRead(const TcpCallBack& cb) { readcb_ = cb;}
+    void Start(bool reusePort = false);
 private:
     typedef std::set<TcpConnPtr> ConnSet;
     EventLoop* loop_;
     Ip4Addr addr_;
     Channel* listen_channel_;
     TcpCallBack statecb_, readcb_;
-    MsgCallBack msgcb_;
-    std::function<TcpConnPtr()> createcb_;
+    std::function<void (const TcpConnPtr&)> createcb_;
     std::unique_ptr<CodecBase> codec_;
     std::unique_ptr<EventLoopPool> threadPool_;
     ConnSet conns_;
@@ -42,7 +43,7 @@ private:
     void HandleAccept();
     void RemoveConn(const TcpConnPtr& conn);
     void RemoveConnInLoop(const TcpConnPtr& conn);
-    void Start(int threads = 0);
+    void StartThread(int threads = 0);
 };
 
 #endif

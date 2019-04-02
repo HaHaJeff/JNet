@@ -158,10 +158,10 @@ public:
   typedef std::function<void(const HttpConnPtr&)> HttpCallBack;
 
   HttpRequest& GetRequest() const  {
-    return tcp_->GetContext().context<HttpContext>().req;
+    return tcp_->GetContext().AnyCast<HttpContext>().req;
   }
   HttpResponse& GetResponse() const { 
-    return tcp_->GetContext().context<HttpContext>().rep;
+    return tcp_->GetContext().AnyCast<HttpContext>().rep;
   }
 
   void SendRequest() const { SendRequest(GetRequest());}

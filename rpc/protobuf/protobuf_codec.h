@@ -25,7 +25,7 @@ public:
     // call ProtobufMessageCallback after Codec get the full packet
     // TODO: add Message arguement
     //
-    typedef std::function<void (const TcpConnPtr&, const MessagePtr&, TimeStamp)> ProtobufMessageCallback;
+    typedef std::function<void (const TcpConnPtr&, const MessagePtr&)> ProtobufMessageCallback;
     ProtobufCodec(const ::google::protobuf::Message* prototype, const ProtobufMessageCallback& msgcallback);
 
     // 
@@ -36,7 +36,7 @@ public:
     //
     // if buf->size() >= packet len, call messageCallback_
     //
-    void OnMessage(const TcpConnPtr& conn, Buffer* buf, TimeStamp receiveTime); 
+    void OnMessage(const TcpConnPtr& conn); 
 private:
 
     //

@@ -19,3 +19,6 @@
  |--------|
 
 codec需要按照上述格式进行解析
+
+## protobuf_codec
+只是负责将RpcMessage序列化并发送出去

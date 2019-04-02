@@ -4,10 +4,16 @@
 #include <unistd.h>
 #include <iostream>
 
+TcpServer::TcpServer(EventLoop* loop, const Ip4Addr& addr):
+    loop_(loop),
+    addr_(addr),
+    listen_channel_(nullptr),
+    threadPool_(new EventLoopPool(loop))
+{}
+
 TcpServer::TcpServer(EventLoop* loop):
     loop_(loop),
     listen_channel_(nullptr),
-    createcb_([]{TcpConnPtr con = std::make_shared<TcpConn>();return con;}),
     threadPool_(new EventLoopPool(loop))
 {}
 
@@ -25,6 +31,16 @@ TcpServer::~TcpServer() {
 
 int TcpServer::Bind(const std::string& host, short port, bool reusePort) {
     addr_ = Ip4Addr(host, port);
+    Bind(reusePort);
+}
+
+void TcpServer::Start(bool reusePort) {
+    Bind(reusePort);
+    threadPool_->Start(); 
+    loop_->Loop();
+}
+
+int TcpServer::Bind(bool reusePort) {
     int fd = socket(AF_INET, SOCK_STREAM, 0);
     int r = Net::SetReuseAddr(fd);
     FATALIF(r, "set socket reuse addr option failed");
@@ -48,11 +64,11 @@ int TcpServer::Bind(const std::string& host, short port, bool reusePort) {
 TcpServerPtr TcpServer::StartServer(EventLoop* loop, const std::string& host, short port, int threads, bool reusePort) {
     TcpServerPtr p = std::make_shared<TcpServer>(loop);
     int r = p->Bind(host, port, reusePort);
-    p->Start(threads);
+    p->StartThread(threads);
     return r == 0 ? p : nullptr;
 }
 
-void TcpServer::Start(int threads) {
+void TcpServer::StartThread(int threads) {
     SetThreadNum(threads);
     threadPool_->Start();
 }
@@ -80,7 +96,9 @@ void TcpServer::HandleAccept() {
         FATALIF(r, "set fd FD_CLOEXEC failed");
 
         EventLoop* ioLoop = threadPool_->GetNextLoop();
-        TcpConnPtr con = createcb_();
+        TcpConnPtr con = std::make_shared<TcpConn>();
+        if (createcb_ != nullptr)
+            createcb_(con);
         // FIXME: always hold shared_ptr in tcpserver
         conns_.insert(con);
         ioLoop->RunInLoop([=](){con->Attach(ioLoop, cfd, local, peer);});
@@ -89,9 +107,6 @@ void TcpServer::HandleAccept() {
         }
         if (readcb_) {
             con->OnRead(readcb_);
-        }
-        if (msgcb_) {
-            con->OnMsg(codec_->Clone(), msgcb_);
         }
     }
     if (lfd >= 0 && errno != EAGAIN && errno != EINTR) {

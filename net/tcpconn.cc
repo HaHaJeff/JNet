@@ -250,28 +250,8 @@ void TcpConn::SendInLoop(const char* message, size_t len) {
     }
 }
 
-void TcpConn::OnMsg(CodecBase* codec, const MsgCallBack& cb) {
-    assert(!readcb_);
-    codec_.reset(codec);
-    OnRead([cb](const TcpConnPtr& con) {
-        int r = 1;
-        while (r) {
-            std::string msg;
-            r = con->codec_->TryDecode(con->GetInput().GetData(), msg);
-
-            if (r < 0) {
-                con->channel_->Close();
-            } else {
-                cb(con, msg);
-                con->GetInput().Consume(r);
-            }
-        }
-    });
-}
-
 void TcpConn::SendMsg(std::string msg) {
     Buffer& b = GetOutput();
-    codec_->Encode(msg, b);
     SendOutput();
 }
 
