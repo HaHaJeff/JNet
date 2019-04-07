@@ -32,5 +32,4 @@ void RpcServer::OnConnection(const TcpConnPtr& conn) {
     //
     conn->SetContext(channel);
 }
-
 }

@@ -21,6 +21,7 @@ class Message;
 namespace rpc {
 
 typedef std::shared_ptr<::google::protobuf::Message> MessagePtr;
+using namespace std::placeholders;
 
 class ProtobufCodec {
 public:
@@ -74,6 +75,43 @@ private:
     const ::google::protobuf::Message* prototype_;
     ProtobufMessageCallback messageCallback_;
 };
+
+// 
+// Thanks muduo
+// ProtobufCodecT模板类
+//
+template<typename MSG, typename CODEC=ProtobufCodec>
+class ProtobufCodecT {
+public:
+    typedef std::shared_ptr<MSG> ConcreteMessagePtr;
+    typedef std::function<void (const TcpConnPtr&, const ConcreteMessagePtr&)> ProtobufMessageCallback;
+    
+    explicit ProtobufCodecT(const ProtobufMessageCallback& msgCb)
+        : messageCallback_(msgCb),
+          codec_(&MSG::default_instance(),
+                 std::bind(&ProtobufCodecT::OnRpcMessage, this, _1, _2)) 
+    {
+    }
+
+    void Send(const TcpConnPtr& conn, const MSG& message) {
+        codec_.Send(conn, message);
+    }
+
+    void OnMessage(const TcpConnPtr& conn) {
+        codec_.OnMessage(conn);
+    }
+
+    void OnRpcMessage(const TcpConnPtr& conn, const MessagePtr& message) 
+    {
+        // 类型转换 down cast
+        ConcreteMessagePtr msg(dynamic_cast<MSG*>(message.get()));
+        messageCallback_(conn, msg);
+    }
+private:
+    ProtobufMessageCallback messageCallback_;
+    CODEC codec_;
+};
+
 }
 
 #endif
