@@ -3,6 +3,8 @@
 #include <google/protobuf/descriptor.h>
 #include <google/protobuf/service.h>
 
+namespace rpc {
+
 using namespace std::placeholders;
 
 RpcServer::RpcServer(EventLoop* loop, const Ip4Addr& addr):
@@ -25,5 +27,10 @@ void RpcServer::OnConnection(const TcpConnPtr& conn) {
     RpcChannelPtr channel(new RpcChannel(conn));
     channel->SetServices(&services_);
     conn->OnRead(std::bind(&RpcChannel::OnMessage, channel.get(), _1));
+    // 
+    // ensure channel is always livness
+    //
     conn->SetContext(channel);
+}
+
 }

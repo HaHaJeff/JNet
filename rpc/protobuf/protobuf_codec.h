@@ -17,6 +17,9 @@ class Message;
 }
 }
 
+
+namespace rpc {
+
 typedef std::shared_ptr<::google::protobuf::Message> MessagePtr;
 
 class ProtobufCodec {
@@ -71,5 +74,6 @@ private:
     const ::google::protobuf::Message* prototype_;
     ProtobufMessageCallback messageCallback_;
 };
+}
 
 #endif

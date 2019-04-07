@@ -1,6 +1,8 @@
 #include "protobuf_codec.h"
 #include <google/protobuf/message.h>
 
+namespace rpc {
+
 ProtobufCodec::ProtobufCodec(const ::google::protobuf::Message* prototype,
                              const ProtobufMessageCallback& messageCallback)
     : prototype_(prototype),
@@ -47,4 +49,5 @@ int ProtobufCodec::SerializeToBuffer(const ::google::protobuf::Message& message,
 
 int ProtobufCodec::ParseFromBuffer(::google::protobuf::Message& message, const char* buf, size_t len) {
     return message.ParseFromArray(buf, len);
+}
 }

@@ -4,4 +4,8 @@
 class RpcMessage;
 typedef std::shared_ptr<RpcMessage> RpcMessagePtr;
 
+namespace rpc {
+class RpcCodec {};
+}
+
 #endif

@@ -13,6 +13,9 @@ class Service;
 #include "eventloop.h"
 #include <map>
 #include <string>
+
+namespace rpc {
+
 //
 // extend tcpserver
 //
@@ -35,5 +38,6 @@ private:
     // key: method full name, value: service pointer
     std::map<std::string, ::google::protobuf::Service*> services_;
 };
+}
 
 #endif

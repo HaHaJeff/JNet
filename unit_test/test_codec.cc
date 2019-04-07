@@ -3,6 +3,8 @@
 #include "unit_test.h"
 #include <iostream>
 
+using namespace rpc;
+
 void func(const TcpConnPtr& conn, const MessagePtr&) {
 }
 
