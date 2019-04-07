@@ -2,7 +2,7 @@ syntax = "proto2";
 
 enum MessageType {
     REQUEST=1;
-    RESPOSE=2;
+    RESPONSE=2;
 }
 
 // 用于client server通信的message

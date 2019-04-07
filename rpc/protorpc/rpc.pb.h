@@ -52,11 +52,11 @@ void InitDefaults();
 
 enum MessageType {
   REQUEST = 1,
-  RESPOSE = 2
+  RESPONSE = 2
 };
 bool MessageType_IsValid(int value);
 const MessageType MessageType_MIN = REQUEST;
-const MessageType MessageType_MAX = RESPOSE;
+const MessageType MessageType_MAX = RESPONSE;
 const int MessageType_ARRAYSIZE = MessageType_MAX + 1;
 
 const ::google::protobuf::EnumDescriptor* MessageType_descriptor();

@@ -69,6 +69,8 @@ public:
 private:
     // 
     // When get full rpc packet, call this function to specific service
+    // Client need handle RpcMessage::type RESPONSE
+    // Server need handle RpcMessage::type REQUEST
     //
     void OnRpcMessage(const TcpConnPtr& conn, const RpcMessagePtr& message);
 
@@ -83,6 +85,7 @@ private:
     //
     struct OutstandingCall {
         ::google::protobuf::Message* response;
+        // google protobuf warp for function
         ::google::protobuf::Closure* done;
     };
 
@@ -92,8 +95,11 @@ private:
     RpcCodec codec_;
     TcpConnPtr conn_;
     std::atomic<int64_t> id_;
+    
+    std::mutex mtx_;
 
-    std::map<int, OutstandingCall> outstanding_;
+    std::map<int, OutstandingCall> outstandings_;
+    // key: Service::full_name()
     const std::map<std::string, ::google::protobuf::Service*>* services_;
     
 };

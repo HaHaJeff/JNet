@@ -114,11 +114,11 @@ void AddDescriptorsImpl() {
       "\n\trpc.proto\"x\n\nRpcMessage\022\032\n\004type\030\001 \002(\0162"
       "\014.MessageType\022\n\n\002id\030\002 \002(\006\022\017\n\007service\030\003 \001"
       "(\t\022\016\n\006method\030\004 \001(\t\022\017\n\007request\030\005 \001(\014\022\020\n\010r"
-      "esponse\030\006 \001(\014*\'\n\013MessageType\022\013\n\007REQUEST\020"
-      "\001\022\013\n\007RESPOSE\020\002"
+      "esponse\030\006 \001(\014*(\n\013MessageType\022\013\n\007REQUEST\020"
+      "\001\022\014\n\010RESPONSE\020\002"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 174);
+      descriptor, 175);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "rpc.proto", &protobuf_RegisterTypes);
 }
