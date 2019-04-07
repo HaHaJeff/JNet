@@ -1,4 +1,4 @@
-OPT ?= -O2 -g
+OPT ?= -O0 -g
 
 CXXFLAGS += -I./net -I./rpc/protobuf -I./rpc/protorpc -lprotobuf $(OPT) -std=c++11 -pthread
 
@@ -17,7 +17,7 @@ EXAMPLES_OBJ = $(EXAMPLES_SOURCE:.cc=.o)
 TEST_SOURCES = $(shell find unit_test -name '*.cc')
 TEST_OBJ = $(TEST_SOURCES:.cc=.o)
 
-all: test http_server test_client test_server test_codec #cleanObj
+all: test http_server test_client test_server test_codec test_rpc_client test_rpc_server#cleanObj
 
 test: unit_test/unit_test.o unit_test/test.o $(NET_OBJ)
 	$(CXX) $^ -o $@ ${CXXFLAGS}
@@ -26,6 +26,12 @@ test_client: examples/pingpong/test_client.o $(NET_OBJ)
 	$(CXX) $^ -o $@ ${CXXFLAGS}
 
 test_server: examples/pingpong/test_server.o $(NET_OBJ)
+	$(CXX) $^ -o $@ ${CXXFLAGS}
+
+test_rpc_server: examples/rpc/echo.pb.o examples/rpc/test_server.o $(NET_OBJ) $(RPC_OBJ) $(RPC_PROTOBUF_OBJ)
+	$(CXX) $^ -o $@ ${CXXFLAGS}
+
+test_rpc_client: examples/rpc/echo.pb.o examples/rpc/test_client.o $(NET_OBJ) $(RPC_OBJ) $(RPC_PROTOBUF_OBJ)
 	$(CXX) $^ -o $@ ${CXXFLAGS}
 
 http_server: examples/http/http_server.o $(NET_OBJ)

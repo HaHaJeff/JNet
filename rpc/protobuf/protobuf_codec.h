@@ -8,6 +8,7 @@
 #include "channel.h"
 #include "log.h"
 #include "tcpconn.h"
+#include "rpc.pb.h"
 #include <memory>
 
 namespace google
@@ -88,8 +89,7 @@ public:
     
     explicit ProtobufCodecT(const ProtobufMessageCallback& msgCb)
         : messageCallback_(msgCb),
-          codec_(&MSG::default_instance(),
-                 std::bind(&ProtobufCodecT::OnRpcMessage, this, _1, _2)) 
+          codec_(&MSG::default_instance(), std::bind(&ProtobufCodecT::OnRpcMessage, this, _1, _2)) 
     {
     }
 
@@ -104,9 +104,12 @@ public:
     void OnRpcMessage(const TcpConnPtr& conn, const MessagePtr& message) 
     {
         // 类型转换 down cast
+        std::cout << "OnRpcMessage in ProtobufCodecT" << std::endl;
         ConcreteMessagePtr msg(dynamic_cast<MSG*>(message.get()));
+        std::cout << "OnRpcMessage in ProtobufCodecT" << std::endl;
         messageCallback_(conn, msg);
     }
+
 private:
     ProtobufMessageCallback messageCallback_;
     CODEC codec_;

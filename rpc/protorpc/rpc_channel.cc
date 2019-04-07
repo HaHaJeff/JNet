@@ -57,7 +57,7 @@ void RpcChannel::CallMethod(const ::google::protobuf::MethodDescriptor* method,
 
 void RpcChannel::OnRpcMessage(const TcpConnPtr& conn, const RpcMessagePtr& messagePtr) {
     // must handle same tcpconn
-    assert(conn == conn_);
+    //assert(conn == conn_);
 
     RpcMessage& message = *messagePtr;
 

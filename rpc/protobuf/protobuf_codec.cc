@@ -18,7 +18,7 @@ void ProtobufCodec::Send(const TcpConnPtr& conn, const ::google::protobuf::Messa
 
 void ProtobufCodec::OnMessage(const TcpConnPtr& conn) {
     Buffer& buf = conn->GetInput();
-    const int32_t len = buf.extra_;
+    const int32_t len = buf.GetSize();
     //
     // receive a full packet
     //
