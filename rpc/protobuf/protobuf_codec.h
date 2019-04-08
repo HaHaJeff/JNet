@@ -21,6 +21,7 @@ class Message;
 
 namespace rpc {
 
+const int32_t kHeaderLen = 4;
 typedef std::shared_ptr<::google::protobuf::Message> MessagePtr;
 using namespace std::placeholders;
 

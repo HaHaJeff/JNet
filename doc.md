@@ -198,5 +198,6 @@ service->CallMethod(method, nullptr, request.get(), response, NewCallback(this, 
 - 实现Client，在example目录中有echo示例代码
 - 实现server，只是对RpcServer的一层封装，需要实现Service的子类即对Echo函数进行重载
 
-- buffer
-    在buffer中添加一个额外的字段，用于保存应急信息
+### protobuf如何结合buffer使用
+protobuf不包含消息长度，所以buffer需要解决这个问题，muduo提供了一种实现思路，通过对Buffer结构的设计，预留一个preapend区域，
+我的方案是：append一个int32_t，然后对其赋值 哈哈

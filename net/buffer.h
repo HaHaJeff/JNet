@@ -5,6 +5,7 @@
 #include <string>
 #include <assert.h>
 #include <iostream>
+#include <arpa/inet.h>
 class Buffer {
   public:
     Buffer() : buf_(nullptr), b_(0), e_(0), cap_(0), exp_(4096), extra_(0) { }
@@ -55,25 +56,30 @@ class Buffer {
       return p;
     }
 
-    Buffer& Append(const std::string& str) {
-      return Append(str.c_str(), str.size());
+    const char* Peek() {
+        return Begin();
     }
 
-    size_t PrependableBytes() {
-        return b_;
+    int32_t PeekInt32() {
+        assert(GetSize()>= sizeof(int32_t));
+        int32_t be32 = 0;
+        ::memcpy(&be32, Peek(), sizeof be32);
+        return ntohl(be32);
+    }
+
+    void AppendInt32(int32_t num) {
+        int32_t be32 = htonl(num);
+        Append(reinterpret_cast<char*>(&be32), sizeof be32);
+    }
+
+    Buffer& Append(const std::string& str) {
+      return Append(str.c_str(), str.size());
     }
 
     void EnsureWriteableBytes(size_t len) {
         if (GetSize() < len) {
             MakeRoom(len);
         }
-    }
-
-    void Prepend(const void* data, size_t len) {
-        assert(len <= PrependableBytes());
-        b_ -= len; 
-        const char* d = static_cast<const char*>(data);
-        std::copy(d, d+len, buf_+b_);
     }
 
     Buffer& Append(const char* p, size_t len) {
