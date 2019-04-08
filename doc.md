@@ -35,13 +35,13 @@ Poller是IO multiplexing的封装，负责管理channel的活动,需要一个容
 ### 事件处理机制 参照libevent
 ```
 if (events & (POLLHUP | POLLERR | POLLNVAL)) {
-    read_write();
+read_write();
 }
 if (events & POLLIN) {
-    read();
+read();
 }
 if (events & POLLOUT) {
-    write();
+write();
 }
 ```
 
@@ -77,7 +77,7 @@ if (events & POLLOUT) {
 ### 为什么需要应用层缓冲？
 要想不阻塞当前IO线程（负责poll），必须使用nonblocking配合应用层buffer 考虑如下场景：
 - 如果用户需要发送10KB数据，但是由于TCP滑动窗口的原因只能发送8KB
-，剩下的2KB只能不断的write，然后返回EAGING或EWOULDBLOCK，这样就相当与阻塞了当前发送线程，然而采用buffer就不一样了，当数据写入buffer内后，发送线程就可以去干其他事情了。当位于poll的TCPCONN可写时自动从buffer中发送数据。这就解耦了应用程序与网络库，应用程序只管数据的生成，而不去操行数据是分几次发送的。
+    ，剩下的2KB只能不断的write，然后返回EAGING或EWOULDBLOCK，这样就相当与阻塞了当前发送线程，然而采用buffer就不一样了，当数据写入buffer内后，发送线程就可以去干其他事情了。当位于poll的TCPCONN可写时自动从buffer中发送数据。这就解耦了应用程序与网络库，应用程序只管数据的生成，而不去操行数据是分几次发送的。
 - 如果对方发送了两条1KB的消息，那么接收方收到数据的情况可能是：
     - 一次性收到2KB数据
     - 分两次收到，第一次600B，第二次1400B
@@ -85,25 +85,25 @@ if (events & POLLOUT) {
     - 分两次收到，第一次1KB，第二次1KB
     - 分三次收到，第一次600B，第二次800B，第三此600B
     - 其他任何可能。一般而言，长度为n字节的消息分块到达的可能性有2^(n-1)
-所以如果应用程序需要自己去负责消息的完整性会有许多不便利的地方。提供input buffer则可以有效解决。当input buffer内的数据构成一条完整的消息时再通知程序的业务逻辑，这通常是有codec负责。
+        所以如果应用程序需要自己去负责消息的完整性会有许多不便利的地方。提供input buffer则可以有效解决。当input buffer内的数据构成一条完整的消息时再通知程序的业务逻辑，这通常是有codec负责。
 
-**已完成组件，但为添加到代码中**
+        **已完成组件，但为添加到代码中**
 - 同步队列以及线程池
 
-**未完成功能**
+    **未完成功能**
 - 多线程操作EventLoop
 
-**实现思想：为EventLoop添加一个SafeQueue，当其他线程想要操作tcpconnptr时，只是将任务push进SafeQueue并调用wakeup唤醒IO线程**
+    **实现思想：为EventLoop添加一个SafeQueue，当其他线程想要操作tcpconnptr时，只是将任务push进SafeQueue并调用wakeup唤醒IO线程**
 
 - 如何唤醒？
 
-为EventLoop添加一个wakeupfd_并将fd加入eventloop中，当调用wakeup函数时候，向其中写入一个字节，这样wakeupfd_就可读了，产生读时间，pop safequeue并执行
+    为EventLoop添加一个wakeupfd_并将fd加入eventloop中，当调用wakeup函数时候，向其中写入一个字节，这样wakeupfd_就可读了，产生读时间，pop safequeue并执行
 
 - wakeupfd_如何选择？
-pipe可以，生成一队fd，并写readfd加入epoll中。
-采用eventfd可以完成时间通知，哈哈，配合timerfd感觉瞬间高大上哈。
+    pipe可以，生成一队fd，并写readfd加入epoll中。
+    采用eventfd可以完成时间通知，哈哈，配合timerfd感觉瞬间高大上哈。
 
-**处理读事件**
+    **处理读事件**
 - muduo：在handlRead中显式调用messageCallback_，如果没有设置messageCallback_，那么数据会在inputBuffer累积（因为defaultMessageCallback除了写日志啥也不做)
 - handy: 在handleRead中只是将数据读入buffer中，只有设置onRead，才会改变readcb_，而OnMsg其实就是改变readcb_, 在handleRead中是while的，当read读完之后才会调用readcb_
 
@@ -128,42 +128,75 @@ pipe可以，生成一队fd，并写readfd加入epoll中。
 1. Echo，对应着使用EchoSerivce_Stub的CallMethod
 2. 在CallMethod中调用channel_->CallMethod
 3. channel_->CallMethod负责网络逻辑，这里可以使用TcpConnPtr对象，设置messageback以及rpcmessagecallback
-    1. messagecallback用于conn->HandleRead中调用，rpcmessagecallback用于在messagecallback中调用，即具体的rpc调用将在这里产生。分为request以及response两个逻辑
-    2. client端负责response，server负责request
-    3. rpcchannel需要和map<services>耦合，因为在request中需要确定具体的service，如何确定具体的service可以借鉴muduo的思路，即利用protobuf提供的反射机制完成
+1. messagecallback用于conn->HandleRead中调用，rpcmessagecallback用于在messagecallback中调用，即具体的rpc调用将在这里产生。分为request以及response两个逻辑
+2. client端负责response，server负责request
+3. rpcchannel需要和map<services>耦合，因为在request中需要确定具体的service，如何确定具体的service可以借鉴muduo的思路，即利用protobuf提供的反射机制完成
 4. 调用send函数将消息发送出去
 5. 服务端处理HandleRead调用messagecallback，满足codec条件时调用rpcmessagecallback,构造response并send回client
 6. 同理客户端调用，不过这里还会过一次额Donecallback，为CallMethod方法的最后一个参数，因为在第4步并不是同步等待的，Donecallback需要进行最后的处理工作,即完成对response的处理，所以response需要分配在heap上或者在调用Donecallback前分配
 
 #### rpc设计
 - service
-protobuf rpc service的抽象接口，有client的stub以及server负责实现
+    protobuf rpc service的抽象接口，有client的stub以及server负责实现
 - client stub
-实现service_stub类，涉及到rpcchannel(rpcchannel负责网络通信, 组成对象包括：TcpConn)
+    实现service_stub类，涉及到rpcchannel(rpcchannel负责网络通信, 组成对象包括：TcpConn)
 - server
-管理具体的services_，一般采用map实现，key为string，value为services
+    管理具体的services_，一般采用map实现，key为string，value为services
 - rpcchannel
     - 在client处理response消息
     - 在server处理request消息
 
-两端消息格式
+        两端消息格式
+        ``` cpp
+        enum MessageType {
+        REQUEST=1;
+        RESPONSE=2;
+        }
+
+        message RpcMessage {
+        required MessageType type=1;
+        required fixed64 id=2;
+
+        optional string service=3;
+        optional string method=4;  // MethodDescriptor->name()
+        optional bytes request=5;     // 对应request的序列化
+        optional bytes response=6; //对应response的序列话
+        }
+        ```
+
+#### 如何完成Message对特定Message的转换
+protobuf的默认序列化格式没有消息类型字段以及长度字段，所以需要完成两个任务：
+- 如果通过RpcMessage判断具体调用的函数以及生成其函数调用参数
+    - 具体函数可以通过RcpMessage中的service字段配合protobuf提供的反射得到
+    - 得到函数之后可以通过该函数对应的Service结构体生成对应的参数类型
+
 ``` cpp
-enum MessageType {
-    REQUEST=1;
-    RESPONSE=2;
+auto iter = services_->find(message.service());
+auto service = iter->second;
+
+// use reflect by protobuf
+auto desc    = service->GetDescriptor();
+auto method  = desc->FindMethodByName(message.method());
+
+if (method != nullptr) {
+    std::unique_ptr<::google::protobuf::Message> request(service->GetRequestPrototype(method).New());
+    if (request->ParseFromString(message.request())) {
+    auto response = service->GetResponsePrototype(method).New();
+    int64_t id = message.id();
+    }
 }
 
-message RpcMessage {
-    required MessageType type=1;
-    required fixed64 id=2;
-
-    optional string service=3;
-    optional string method=4;  // MethodDescriptor->name()
-    optional bytes request=5;     // 对应request的序列化
-    optional bytes response=6; //对应response的序列话
+//DoneCallback is called after handle method
+//For example, EchoServiceImpl should override Echo, and call done->Run() in it
+service->CallMethod(method, nullptr, request.get(), response, NewCallback(this, &RpcChannel::DoneCallback, response, id));
 }
 
 ```
 
+#### JRpc使用
+- 采用protobuf定义Request Message以及Response Message，Service
+- 实现Client，在example目录中有echo示例代码
+- 实现server，只是对RpcServer的一层封装，需要实现Service的子类即对Echo函数进行重载
+
 - buffer
-在buffer中添加一个额外的字段，用于保存应急信息
+    在buffer中添加一个额外的字段，用于保存应急信息

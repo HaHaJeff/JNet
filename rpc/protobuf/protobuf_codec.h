@@ -57,7 +57,7 @@ private:
     // 
     // just parse buf.data + kHeadLen(in prependable bytes) into message
     //
-    int ParseFromBuffer(::google::protobuf::Message& message, const char* buf, size_t len);
+    int ParseFromBuffer(::google::protobuf::Message* message, const char* buf, size_t len);
 
 private:
     //
@@ -81,6 +81,7 @@ private:
 // Thanks muduo
 // ProtobufCodecT模板类
 //
+
 template<typename MSG, typename CODEC=ProtobufCodec>
 class ProtobufCodecT {
 public:
@@ -104,10 +105,7 @@ public:
     void OnRpcMessage(const TcpConnPtr& conn, const MessagePtr& message) 
     {
         // 类型转换 down cast
-        std::cout << "OnRpcMessage in ProtobufCodecT" << std::endl;
-        ConcreteMessagePtr msg(dynamic_cast<MSG*>(message.get()));
-        std::cout << "OnRpcMessage in ProtobufCodecT" << std::endl;
-        messageCallback_(conn, msg);
+        messageCallback_(conn, std::dynamic_pointer_cast<MSG>(message));
     }
 
 private:

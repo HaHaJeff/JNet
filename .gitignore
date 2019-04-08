@@ -1,6 +1,7 @@
 /net/*.o
 /examples/pingpong/*.o
 /examples/http/*.o
+/examples/rpc/*.o
 /test/*.o
 /rpc/protobuf/*.o
 /rpc/protorpc/*.o

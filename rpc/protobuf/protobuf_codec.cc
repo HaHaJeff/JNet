@@ -23,9 +23,12 @@ void ProtobufCodec::OnMessage(const TcpConnPtr& conn) {
     // receive a full packet
     //
     if (buf.GetSize() >= static_cast<size_t>(len)) {
+        // TODO: fix this bug, MessagePtr dtor cause core dump
+        //MessagePtr message(prototype_->New(), [](void*){std::cout << "delete MessagePtr" << std::endl;});
         MessagePtr message(prototype_->New());
-        ParseFromBuffer(*message, buf.GetData(), len);
+        ParseFromBuffer(message.get(), buf.GetData(), len);
         messageCallback_(conn, message);
+        buf.Consume(len);
     }
 }
 
@@ -47,7 +50,8 @@ int ProtobufCodec::SerializeToBuffer(const ::google::protobuf::Message& message,
     return byte_size;
 }
 
-int ProtobufCodec::ParseFromBuffer(::google::protobuf::Message& message, const char* buf, size_t len) {
-    return message.ParseFromArray(buf, len);
+int ProtobufCodec::ParseFromBuffer(::google::protobuf::Message* message, const char* buf, size_t len) {
+    return message->ParseFromArray(buf, len);
 }
+
 }

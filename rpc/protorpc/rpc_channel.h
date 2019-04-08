@@ -76,6 +76,7 @@ private:
 
     // 
     // Client need call this function when rpc is done, id unique specific a rpc call
+    // Server need call this function to send response
     //
     void DoneCallback(::google::protobuf::Message* response, int64_t id);
 

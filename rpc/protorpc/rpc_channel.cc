@@ -47,6 +47,7 @@ void RpcChannel::CallMethod(const ::google::protobuf::MethodDescriptor* method,
     message.set_method(method->name());
     message.set_request(request->SerializeAsString());
 
+    // async, when rpc is finished, done should be called in client
     OutstandingCall out = { response, done };
     {
         std::lock_guard<std::mutex> lck(mtx_);
@@ -57,8 +58,9 @@ void RpcChannel::CallMethod(const ::google::protobuf::MethodDescriptor* method,
 
 void RpcChannel::OnRpcMessage(const TcpConnPtr& conn, const RpcMessagePtr& messagePtr) {
     // must handle same tcpconn
-    //assert(conn == conn_);
+    assert(conn == conn_);
 
+    //RpcMessage& message = *messagePtr;
     RpcMessage& message = *messagePtr;
 
     // for client
@@ -77,12 +79,14 @@ void RpcChannel::OnRpcMessage(const TcpConnPtr& conn, const RpcMessagePtr& messa
         if (out.response != nullptr) {
             // To prevent memory leak, response is allocated in heap
             // and it valid until call done
-            std::unique_ptr<::google::protobuf::Message> s(out.response); 
+            std::unique_ptr<::google::protobuf::Message> s(out.response);
 
             out.response->ParseFromString(message.response());
             out.done->Run();
         }
-    } else if (message.type() == REQUEST) {
+    } 
+    // for server
+    else if (message.type() == REQUEST) {
         assert(services_ != nullptr);
         auto iter = services_->find(message.service());
         assert(iter != services_->end());
@@ -99,20 +103,19 @@ void RpcChannel::OnRpcMessage(const TcpConnPtr& conn, const RpcMessagePtr& messa
                 int64_t id = message.id();
 
                 //DoneCallback is called after handle method
+                //For example, EchoServiceImpl should override Echo, and call done->Run() in it
                 service->CallMethod(method, nullptr, request.get(), response, NewCallback(this, &RpcChannel::DoneCallback, response, id));
             }
         }
-
-
     } else {
         //TODO: handle error
     }
-
 }
 
-
 void RpcChannel::DoneCallback(::google::protobuf::Message* response, int64_t id) {
+    // prevent memory leak
     std::unique_ptr<::google::protobuf::Message> s(response);
+
     RpcMessage message;
     message.set_type(RESPONSE);
     message.set_id(id);
