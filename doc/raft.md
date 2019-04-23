@@ -1,4 +1,3 @@
-
 # raft算法流程
 
 - follower
