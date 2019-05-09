@@ -214,7 +214,7 @@ void TcpConn::Send(Buffer& message) {
             }
         }
     } else {
-        WARN("connection %s - %s closed, but still writing %lu bytes", localAddr_.ToString().c_str(), peerAddr_.ToString(), message.GetSize());
+        WARN("connection %s - %s closed, but still writing %lu bytes", localAddr_.ToString().c_str(), peerAddr_.ToString().c_str(), message.GetSize());
     }
 }
 
@@ -246,7 +246,7 @@ void TcpConn::SendInLoop(const char* message, size_t len) {
             output_.Append(message, len);
         }
     } else {
-        WARN("connection %s - %s closed, but still writing %lu bytes", localAddr_.ToString().c_str(), peerAddr_.ToString(), len);
+        WARN("connection %s - %s closed, but still writing %lu bytes", localAddr_.ToString().c_str(), peerAddr_.ToString().c_str(), len);
     }
 }
 

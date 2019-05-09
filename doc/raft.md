@@ -90,9 +90,7 @@ raft日志同步保证以下两点：
     1. 刚开始的时候A作为leader对外提供服务
     2. 发生网络隔离，集群被分割成两部分，A和B以及CDE。虽然A会持续向其他几个节点发送heartbeat，但是由于网络隔离，CDE将无法收到A的heartbeat。默认的，A不处理向follower节点发送heartbeat失败(此处为网络超时)的情况(协议没有明确说明heartbeat是一个必须收到follower ack的双向过程)
     3. CDE组成的分区在经过一定时间没有收到leader的heartbeat后，触发election timeout，此时C成为leader。此时，原来的5节点集群因网络分区分割成两个集群：小集群：A和B，A为leader；大集群：C、D和E，C为leader
-    4. 
-
-    第三点中的**至少**是关键要求，因为：read log可以保证线性一致性读，该请求发生的点为commit index，也就是说这个点能使read log满足线性一致，那显然发生在这个点之后的read index也能满足线性一致读
+    4. 第三点中的**至少**是关键要求，因为：read log可以保证线性一致性读，该请求发生的点为commit index，也就是说这个点能使read log满足线性一致，那显然发生在这个点之后的read index也能满足线性一致读
 
   - 使用**lease read**，lease read与read index类似，但更进异步，不仅省却了log，还省去了网络交互。它可以大幅度提升读的吞吐也能显著降低延时。基本思路：leader取一个比election time out更小的租期，在租期内不会发生选举，确保leader不会变，所以可以跳过read index的第二步，也就降低了延时。lease read的正确性和时间挂钩，因此时间的实现至关重要，如果漂移严重，这套机制就会有问题
 
