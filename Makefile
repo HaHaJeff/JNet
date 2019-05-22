@@ -1,4 +1,4 @@
-OPT ?= -O0 -g
+OPT ?= -O2 -g
 
 CXXFLAGS += -I./net -I./rpc/protobuf -I./rpc/protorpc -lprotobuf $(OPT) -std=c++11 -pthread
 

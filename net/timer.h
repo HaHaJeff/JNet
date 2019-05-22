@@ -34,7 +34,7 @@ public:
 private:
     const TimerCallback callback_;
     TimeStamp expiration_;
-    // 是否可以复用当前Timer
+    // 当前Timer是否需要repeated
     double interval_;
     bool repeat_;
 

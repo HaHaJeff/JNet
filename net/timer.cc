@@ -1,4 +1,5 @@
 #include "timer.h"
+#include <iostream>
 
 std::atomic<int64_t> Timer::s_numCreated_;
 

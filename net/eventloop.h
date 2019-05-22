@@ -40,6 +40,8 @@ public:
     TimerId RunAt(const TimeStamp& time, const TimerCallback& cb);
     TimerId RunAfter(double delay, const TimerCallback& cb);
     TimerId RunAfter(double delay, TimerCallback&& cb);
+    TimerId RunEvery(double delay, double interval, const TimerCallback& cb);
+    TimerId RunEvery(double delay, double interval, TimerCallback&& cb);
     void Quit();
     pid_t GetTid() {return tid_;}
 

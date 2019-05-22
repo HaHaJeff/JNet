@@ -5,7 +5,6 @@
 #include <sys/eventfd.h>
 #include <unistd.h>
 #include <assert.h>
-#include <iostream>
 
 int CreateEventFd() {
     int evtfd = eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
@@ -57,8 +56,10 @@ void EventLoop::Loop() {
     }
 }
 
+//
 // 对channel的操作一定实在io loop中的
 // 其他线程通过RunInLoop调用
+//
 void EventLoop::UpdateChannel(Channel* ch) {
     AssertInLoopThread();
     poller_->UpdateChannel(ch);
@@ -79,7 +80,7 @@ bool EventLoop::HasChannel(Channel* ch) {
 }
 
 //
-// timerQueue_->AddTime is thread safe
+// timerQueue_->AddTimer is thread safe
 //
 TimerId EventLoop::RunAt(TimeStamp&& time, TimerCallback&& cb) {
     return timerQueue_->AddTimer(cb, time, 0.0);
@@ -89,14 +90,24 @@ TimerId EventLoop::RunAt(const TimeStamp& time, const TimerCallback& cb) {
     return timerQueue_->AddTimer(cb, time, 0.0);
 }
 
-TimerId EventLoop::RunAfter(double interval, TimerCallback&& cb) {
-    TimeStamp time(AddTime(TimeStamp(TimeStamp::Now()), interval));
+TimerId EventLoop::RunAfter(double delay, TimerCallback&& cb) {
+    TimeStamp time(AddTime(TimeStamp(TimeStamp::Now()), delay));
     return RunAt(time, cb);
 }
 
-TimerId EventLoop::RunAfter(double interval, const TimerCallback& cb) {
-    TimeStamp time(AddTime(TimeStamp(TimeStamp::Now()), interval));
+TimerId EventLoop::RunAfter(double delay, const TimerCallback& cb) {
+    TimeStamp time(AddTime(TimeStamp(TimeStamp::Now()), delay));
     return RunAt(time, cb);
+}
+
+TimerId EventLoop::RunEvery(double delay, double interval, const TimerCallback& cb) {
+    TimeStamp time(AddTime(TimeStamp(TimeStamp::Now()), delay));
+    return timerQueue_->AddTimer(cb, time, interval);
+}
+
+TimerId EventLoop::RunEvery(double delay, double interval, TimerCallback&& cb) {
+    TimeStamp time(AddTime(TimeStamp(TimeStamp::Now()), delay));
+    return timerQueue_->AddTimer(cb, time, interval);
 }
 
 // TODO: thread safe?

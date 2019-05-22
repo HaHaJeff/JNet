@@ -85,7 +85,6 @@ TEST(TestBase, TimerQueue) {
     queue.HandleRead();
 }
 
-/*
 TEST(TestBase, EventLoop) {
   Logger& log = Logger::GetLogger();
   log.SetFileName("event.log");
@@ -93,9 +92,9 @@ TEST(TestBase, EventLoop) {
 
   int i = 0;
   while (i < 1) {
-    loop.RunAfter(2.0, [i]
+    loop.RunEvery(0.0, 1.0, [i]
         {
-          std::cout << "RunAfter: " << i << std::endl;
+          std::cout << "RunEvery: " << i << std::endl;
         }
         );
     i+=1;
@@ -103,7 +102,6 @@ TEST(TestBase, EventLoop) {
 
   loop.Loop();
 }
-*/
 
 TEST(TestBase, EventLoopPool) {
   Logger& log = Logger::GetLogger();
@@ -115,7 +113,7 @@ TEST(TestBase, EventLoopPool) {
   auto loop = pool.GetNextLoop();
   int i = 0;
   while (i < 1) {
-    loop->RunAfter(2.0, [i]
+    loop->RunEvery(0.0, 1.0, [i]
         {
           std::cout << "RunAfter: " << i << std::endl;
         }
