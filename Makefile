@@ -51,4 +51,4 @@ cleanObj:
 
 .PHONY: clean
 clean:
-	rm test test_client http_server test_server test_codec
+	rm test test_client http_server test_server test_codec test_rpc_client test_rpc_server

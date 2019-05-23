@@ -4,7 +4,6 @@
 #include <string.h>
 #include <string>
 #include <assert.h>
-#include <iostream>
 #include <arpa/inet.h>
 class Buffer {
   public:

@@ -1,7 +1,6 @@
 #ifndef THREADPOOLFUTURE_H
 #define THREADPOOLFUTURE_H
 
-#include <iostream>
 #include <thread>
 #include <condition_variable>
 #include <algorithm>

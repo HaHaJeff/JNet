@@ -2,7 +2,6 @@
 #define TIMESTAMP_H
 
 #include <string>
-
 #include "util.h"
 
 //from muduo
@@ -13,7 +12,7 @@ public:
     void Swap(TimeStamp& that) { std::swap(microSecondsSinceEpoch_, that.microSecondsSinceEpoch_); }
     std::string ToString() const;
     std::string ToFormattedString(bool showMicroSeconds = true) const;
-    bool Valid() const { return microSecondsSinceEpoch_ == 0; }
+    bool Valid() const { return microSecondsSinceEpoch_ != 0; }
     int64_t MicroSecondsSinceEpoch() const { return microSecondsSinceEpoch_; }
     time_t SecondsSinceEpoch() const { return static_cast<time_t>(microSecondsSinceEpoch_/kMicroSecondsPerSecond); }
     static TimeStamp Now();
@@ -44,7 +43,8 @@ inline double TimeDifference(TimeStamp lhs, TimeStamp rhs) {
 
 inline TimeStamp AddTime(TimeStamp t, double seconds) {
     int64_t delta = static_cast<int64_t>(seconds*TimeStamp::kMicroSecondsPerSecond);
-    return TimeStamp(t.MicroSecondsSinceEpoch()+delta);
+    TimeStamp ret(t.MicroSecondsSinceEpoch()+delta);
+    return ret;
 }
 
 #endif

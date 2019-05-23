@@ -14,7 +14,7 @@
 #include "timerqueue.h"
 #include "eventloop_thread.h"
 #include "eventloop_pool.h"
-
+/*
 TEST(TestBase, TimeStamp) {
   TimeStamp t(TimeStamp::Now());
   std::cout << t.ToString() << std::endl;
@@ -84,6 +84,7 @@ TEST(TestBase, TimerQueue) {
     queue.AddTimerInLoop(timer);
     queue.HandleRead();
 }
+*/
 
 TEST(TestBase, EventLoop) {
   Logger& log = Logger::GetLogger();
