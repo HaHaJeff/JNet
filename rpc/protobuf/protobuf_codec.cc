@@ -24,7 +24,9 @@ void ProtobufCodec::OnMessage(const TcpConnPtr& conn) {
     // receive a full packet
     //
     if (buf.GetSize() >= static_cast<size_t>(len)) {
-        // TODO: fix this bug, MessagePtr dtor cause core dump, the reason is that call messageCallback_ will call ProtobufCodecT::OnRpcMessage, this function invloved with dynamic_cast, my solution is use raw pointer with dynamic_cast then wrapper shared_ptr, so the raw pointer will be deleted after this function, finally, after messageCallback_, message dtor will core dump
+        // TODO: fix this bug, MessagePtr dtor cause core dump, the reason is that call messageCallback_ will call ProtobufCodecT::OnRpcMessage,
+        // this function invloved with dynamic_cast, my solution is use raw pointer with dynamic_cast then wrapper shared_ptr,
+        // so the raw pointer will be deleted after this function, finally, after messageCallback_, message dtor will core dump
         MessagePtr message(prototype_->New());
         ParseFromBuffer(message.get(), buf.GetData()+kHeaderLen, len);
         messageCallback_(conn, message);
