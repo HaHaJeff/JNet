@@ -15,6 +15,8 @@
 #include "log.h"
 #include "timestamp.h"
 
+namespace jnet {
+
 Logger::Logger() : level_(LALL), lastRotate_(time(NULL)), rotateInterval_(86400) {
     tzset();
     fd_ = -1;
@@ -148,4 +150,5 @@ void Logger::Write(int level, const char* file, int line, const char*func, const
         fprintf(stderr, "%s", buffer);
         //assert(0);
     }
+}
 }

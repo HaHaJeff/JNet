@@ -4,6 +4,8 @@
 #include <stdarg.h>
 #include <unistd.h>
 #include <fcntl.h>
+namespace jnet {
+
 
 std::string Util::Format(const char *fmt, ...)
 {
@@ -94,4 +96,5 @@ int64_t Util::Atoi(const char *b)
 int Util::Fcntl(int fd, int flag)
 {
     int ret = fcntl(fd, F_GETFD);
+}
 }

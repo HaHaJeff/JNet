@@ -15,7 +15,8 @@
 #include <thread>
 #include "echo.pb.h"
 
-using namespace rpc;
+using namespace jrpc;
+using namespace jnet;
 
 class EchoServiceImpl : public ::echo::EchoService {
 public:

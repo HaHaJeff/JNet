@@ -19,7 +19,8 @@ class Message;
 }
 
 
-namespace rpc {
+using namespace jnet;
+namespace jrpc {
 
 const int32_t kHeaderLen = 4;
 typedef std::shared_ptr<::google::protobuf::Message> MessagePtr;

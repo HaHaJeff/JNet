@@ -4,6 +4,8 @@
 #include <functional>
 #include <signal.h>
 
+namespace jnet {
+
 class Daemon {
 public:
     static int DaemonStart(const char* pidfile);
@@ -19,4 +21,5 @@ struct SignalHandler{
     static void Signal(int sig, const std::function<void()>& handler);
 };
 
+}
 #endif

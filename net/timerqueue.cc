@@ -7,6 +7,8 @@
 #include "timerid.h"
 #include "eventloop.h"
 
+namespace jnet {
+
 int CreateTimerfd()
 {
 
@@ -208,4 +210,5 @@ bool TimerQueue::Insert(Timer *timer)
     }
     timers_.insert(Entry(expiration, timer));
     return isEarliest;
+}
 }

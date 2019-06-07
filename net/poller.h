@@ -7,6 +7,8 @@
 #include "util.h"
 #include "eventloop.h"
 
+namespace jnet {
+
 class Channel;
 
 // like libevent
@@ -42,4 +44,5 @@ public:
     EventLoop* ownerLoop_;
 };
 
+}
 #endif

@@ -2,6 +2,9 @@
 #define EVENTLOOP_THREAD_H
 #include "countdownlatch.h"
 #include <thread>
+
+namespace jnet {
+
 class EventLoop;
 
 class EventLoopThread : Noncopyable {
@@ -17,5 +20,6 @@ private:
     std::thread thread_;
     CountDownLatch latch_{1};
 };
+}
 
 #endif

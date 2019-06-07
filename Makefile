@@ -1,6 +1,6 @@
 OPT ?= -O2 -g
 
-CXXFLAGS += -I./net -I./rpc/protobuf -I./rpc/protorpc -lprotobuf $(OPT) -std=c++11 -pthread
+CXXFLAGS += -I./net -I./rpc/protobuf -I./rpc/protorpc -I./raft -lprotobuf $(OPT) -std=c++11 -pthread
 
 NET_SOURCES = $(shell find net -name '*.cc')
 NET_OBJ = $(NET_SOURCES:.cc=.o)
@@ -11,15 +11,18 @@ RPC_PROTOBUF_OBJ = $(RPC_PROTOBUF_SOURCES:.cc=.o)
 RPC_SOURCES = $(shell find rpc/protorpc -name '*.cc')
 RPC_OBJ = $(RPC_SOURCES:.cc=.o)
 
+RAFT_SOURCES = $(shell find raft -name '*.cc')
+RAFT_OBJ = $(RAFT_SOURCES:.cc=.o)
+
 EXAMPLES_SOURCE = $(shell find examples -name '*.cc')
 EXAMPLES_OBJ = $(EXAMPLES_SOURCE:.cc=.o)
 
 TEST_SOURCES = $(shell find unit_test -name '*.cc')
 TEST_OBJ = $(TEST_SOURCES:.cc=.o)
 
-all: test http_server test_client test_server test_codec test_rpc_client test_rpc_server#cleanObj
+all: test http_server test_client test_server test_codec test_rpc_client test_rpc_server
 
-test: unit_test/unit_test.o unit_test/test.o $(NET_OBJ)
+test: unit_test/unit_test.o unit_test/test.o $(NET_OBJ) $(RAFT_OBJ)
 	$(CXX) $^ -o $@ ${CXXFLAGS}
 
 test_client: examples/pingpong/test_client.o $(NET_OBJ)
@@ -47,7 +50,7 @@ test_codec: unit_test/unit_test.o unit_test/test_codec.o $(NET_OBJ) $(RPC_PROTOB
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 cleanObj:
-	rm $(TEST_OBJ) $(NET_OBJ) $(EXAMPLES_OBJ) $(RPC_PROTOBUF_OBJ) $(RPC_OBJ)
+	rm $(TEST_OBJ) $(NET_OBJ) $(EXAMPLES_OBJ) $(RPC_PROTOBUF_OBJ) $(RPC_OBJ) $(RAFT_OBJ)
 
 .PHONY: clean
 clean:

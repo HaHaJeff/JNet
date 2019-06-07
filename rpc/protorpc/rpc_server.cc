@@ -3,7 +3,7 @@
 #include <google/protobuf/descriptor.h>
 #include <google/protobuf/service.h>
 
-namespace rpc {
+namespace jrpc {
 
 using namespace std::placeholders;
 

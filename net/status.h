@@ -7,6 +7,9 @@
 
 #include "util.h"
 
+namespace jnet {
+
+
 inline const char* errstr() {return strerror(errno);}
 
 // delete: when argument is nullptr, nothing will to do
@@ -45,4 +48,5 @@ private:
     const char* state_;
 };
 
+}
 #endif

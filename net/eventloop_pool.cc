@@ -3,6 +3,8 @@
 #include "eventloop_thread.h"
 #include <assert.h>
 
+namespace jnet {
+
 EventLoopPool::EventLoopPool(EventLoop* baseLoop)
     : baseLoop_(baseLoop),
       numThreads_(0),
@@ -47,4 +49,5 @@ std::vector<EventLoop*> EventLoopPool::GetAllLoops() {
     else {
         return loops_;
     }
+}
 }

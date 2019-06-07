@@ -2,6 +2,7 @@
 #include "log.h"
 #include <iostream>
 
+using namespace jnet;
 int main()
 {
     SETLOGLEVEL("FATAL");

@@ -9,6 +9,9 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+
+namespace jnet {
+
 // static function
 // only use in current file
 static int WritePidFile(const char *pidfile) {
@@ -192,5 +195,4 @@ void Daemon::DaemonProcess(const char* cmd, const char* pidfile) {
     }
 }
 
-
-
+}

@@ -5,6 +5,7 @@
 #include "poller.h"
 
 struct epoll_event;
+namespace jnet {
 
 class EpollPoller: public Poller {
   public:
@@ -30,4 +31,5 @@ class EpollPoller: public Poller {
 
 };
 
+}
 #endif

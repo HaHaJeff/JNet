@@ -6,6 +6,9 @@
 #include "channel.h"
 #include <stdio.h>
 
+namespace jnet {
+
+
 /*
    struct pollfd {
       int   fd;         // file descriptor
@@ -95,4 +98,5 @@ void PollPoller::RemoveChannel(Channel* channel) {
     pollfds_.pop_back();
   }
 
+}
 }

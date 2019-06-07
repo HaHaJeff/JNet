@@ -5,6 +5,8 @@
 
 #include "timestamp.h"
 
+namespace jnet {
+
 std::string TimeStamp::ToString() const {
     char buf[32] = {0};
     int64_t seconds = microSecondsSinceEpoch_/kMicroSecondsPerSecond;
@@ -39,4 +41,5 @@ TimeStamp TimeStamp::Now() {
     gettimeofday(&tv, nullptr);
     int64_t seconds = tv.tv_sec;
     return TimeStamp(seconds*kMicroSecondsPerSecond + tv.tv_usec);
+}
 }

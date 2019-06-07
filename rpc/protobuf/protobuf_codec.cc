@@ -1,7 +1,8 @@
 #include "protobuf_codec.h"
 #include <google/protobuf/message.h>
 #include <arpa/inet.h>
-namespace rpc {
+
+namespace jrpc {
 
 ProtobufCodec::ProtobufCodec(const ::google::protobuf::Message* prototype,
                              const ProtobufMessageCallback& messageCallback)

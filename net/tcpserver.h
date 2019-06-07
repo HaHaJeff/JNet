@@ -12,6 +12,8 @@
 #include "channel.h"
 #include "eventloop_pool.h"
 
+namespace jnet {
+
 class TcpServer;
 typedef std::shared_ptr<TcpServer> TcpServerPtr;
 class TcpServer : Noncopyable {
@@ -46,4 +48,5 @@ private:
     void StartThread(int threads = 0);
 };
 
+}
 #endif

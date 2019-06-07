@@ -7,6 +7,8 @@
 #include "log.h"
 #include "util.h"
 
+namespace jnet {
+
 const struct sockaddr* sockaddr_cast(const struct sockaddr_in *addr) {
     return static_cast<const struct sockaddr*>(implicit_cast<const void*>(addr));
 }
@@ -158,4 +160,5 @@ unsigned int Ip4Addr::GetIpInt() const {
 
 bool Ip4Addr::IsIpValid() const {
     return addr_.sin_addr.s_addr != INADDR_NONE;
+}
 }

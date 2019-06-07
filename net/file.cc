@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include "file.h"
 
+namespace jnet {
 
 
 Status File::GetContent(const std::string& filename, std::string& result) {
@@ -40,4 +41,5 @@ Status File::WriteContent(const std::string& filename, const std::string& conten
         return Status::IoError("write", filename);
     }
     return Status();
+}
 }

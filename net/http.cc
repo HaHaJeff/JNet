@@ -2,6 +2,9 @@
 #include "status.h"
 #include "log.h"
 
+namespace jnet {
+
+
 void HttpMsg::Clear() {
     headers_.clear();
     version_ = "HTTP/1.1";
@@ -229,4 +232,5 @@ HttpServer::HttpServer(EventLoop* loop): TcpServer(loop) {
          });
         return hcon.GetTcp();
     });
+}
 }

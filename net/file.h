@@ -3,6 +3,8 @@
 
 #include <string>
 #include "status.h"
+namespace jnet {
+
 
 class File {
 public:
@@ -10,4 +12,5 @@ public:
     static Status WriteContent(const std::string& name, const std::string& content);
 };
 
+}
 #endif

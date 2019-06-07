@@ -12,6 +12,7 @@
 #include "timerqueue.h"
 #include "tcpconn.h"
 #include <thread>
+using namespace jnet;
 int func(int port) {
     int fd = socket(AF_INET, SOCK_STREAM, 0);
     Net::SetNonBlock(fd);

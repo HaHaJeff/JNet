@@ -14,6 +14,7 @@
 #include "timerqueue.h"
 #include "eventloop_thread.h"
 #include "eventloop_pool.h"
+using namespace jnet;
 /*
 TEST(TestBase, TimeStamp) {
   TimeStamp t(TimeStamp::Now());

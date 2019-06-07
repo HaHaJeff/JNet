@@ -1,4 +1,7 @@
 #include "buffer.h"
+
+namespace jnet {
+
 char* Buffer::MakeRoom(size_t len) {
  
   //如果足够容纳，这什么都不做
@@ -53,4 +56,5 @@ Buffer& Buffer::Absorb(Buffer& b) {
  } 
 
  return *this;
+}
 }

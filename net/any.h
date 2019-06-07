@@ -1,6 +1,8 @@
 #include <memory>
 #include <typeindex>
 
+namespace jnet {
+
 struct Any
 {
     Any(void) : m_tpIndex(std::type_index(typeid(void))){}
@@ -78,3 +80,4 @@ private:
     std::type_index m_tpIndex;
 };
 
+}

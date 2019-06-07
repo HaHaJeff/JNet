@@ -7,6 +7,9 @@
 #include "epollpoller.h"
 #include "channel.h"
 
+namespace jnet {
+
+
 EpollPoller::EpollPoller(EventLoop *loop)
     : Poller(loop),
       epollfd_(epoll_create1(EPOLL_CLOEXEC)),
@@ -118,4 +121,5 @@ std::string EpollPoller::OperationToString(int op) {
             assert(false);
             return "Unknown operation";
     }
+}
 }

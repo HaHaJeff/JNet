@@ -24,7 +24,8 @@ namespace protobuf {
 }
 }
 
-namespace rpc {
+using namespace jnet;
+namespace jrpc {
 
 // Abstract interface for an RPC channel.  An RpcChannel represents a
 // communication line to a Service which can be used to call that Service's

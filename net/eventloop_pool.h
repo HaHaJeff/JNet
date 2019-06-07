@@ -3,6 +3,9 @@
 #include "util.h"
 #include <memory>
 #include <vector>
+
+namespace jnet {
+
 class EventLoop;
 class EventLoopThread;
 
@@ -25,4 +28,5 @@ private:
     std::vector<std::shared_ptr<EventLoopThread>> threads_;
     std::vector<EventLoop*> loops_;
 };
+}
 #endif

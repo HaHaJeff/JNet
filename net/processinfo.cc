@@ -9,6 +9,8 @@
 #include "processinfo.h"
 #include "util.h"
 #include "file.h"
+namespace jnet {
+
 
 // storage duration
 __thread int t_numOpenedFiles = 0;
@@ -180,4 +182,5 @@ std::vector<pid_t> ProcessInfo::threads() {
     t_pids = nullptr;
     std::sort(result.begin(), result.end());
     return result;
+}
 }

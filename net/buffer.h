@@ -5,6 +5,10 @@
 #include <string>
 #include <assert.h>
 #include <arpa/inet.h>
+
+namespace jnet {
+
+
 class Buffer {
   public:
     Buffer() : buf_(nullptr), b_(0), e_(0), cap_(0), exp_(4096), extra_(0) { }
@@ -121,4 +125,5 @@ class Buffer {
     void CopyFrom(const Buffer& b);
 };
 
+}
 #endif

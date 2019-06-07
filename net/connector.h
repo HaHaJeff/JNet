@@ -7,6 +7,8 @@
 #include <functional>
 #include <memory>
 
+namespace jnet {
+
 class Channel;
 class EventLoop;
 
@@ -46,5 +48,6 @@ private:
     NewConnectionCallback newConnectionCallback_;
     int retryDelayMs_;
 };
+}
 
 #endif

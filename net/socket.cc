@@ -2,6 +2,8 @@
 #include "net.h"
 #include "socket.h"
 
+namespace jnet {
+
 Socket::~Socket() {
     close(sockfd_);
 }
@@ -72,4 +74,5 @@ void Socket::SetReusePort(bool on) {
 
 void Socket::SetKeepAlive(bool on) {
     Net::SetKeepAlive(sockfd_, on);
+}
 }

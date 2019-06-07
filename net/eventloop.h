@@ -9,6 +9,8 @@
 #include <mutex>
 #include <sys/types.h>
 
+namespace jnet {
+
 class Channel;
 class Poller;
 class TimerQueue;
@@ -71,4 +73,5 @@ private:
     std::mutex mutex_;
 };
 
+}
 #endif

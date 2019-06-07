@@ -4,6 +4,8 @@
 #include <string>
 #include "util.h"
 
+namespace jnet {
+
 //from muduo
 class TimeStamp {
 public:
@@ -47,4 +49,5 @@ inline TimeStamp AddTime(TimeStamp t, double seconds) {
     return ret;
 }
 
+}
 #endif

@@ -10,6 +10,8 @@
 #include "timer.h"
 #include "channel.h"
 
+namespace jnet {
+
 class EventLoop;
 class TimerId;
 
@@ -54,4 +56,5 @@ class TimerQueue : public Noncopyable
     ActiveTimerSet cancelingTimers_;
 };
 
+}
 #endif

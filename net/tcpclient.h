@@ -3,6 +3,8 @@
 
 #include "tcpconn.h"
 
+namespace jnet {
+
 class TcpClient : Noncopyable {
 public:
     TcpClient(EventLoop* loop, const Ip4Addr& local, const Ip4Addr& peer);
@@ -28,4 +30,5 @@ private:
     TcpCallBack stateCb_;
 };
 
+}
 #endif

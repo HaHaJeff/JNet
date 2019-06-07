@@ -8,6 +8,8 @@
 #include "util.h"
 #include "log.h"
 
+namespace jnet {
+
 class EventLoop;
 
 class Channel : public Noncopyable {
@@ -76,5 +78,6 @@ public:
     static const int kReadEvent;
     static const int kWriteEvent;
 };
+}
 
 #endif

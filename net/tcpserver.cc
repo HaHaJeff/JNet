@@ -4,6 +4,8 @@
 #include <unistd.h>
 #include <iostream>
 
+namespace jnet {
+
 TcpServer::TcpServer(EventLoop* loop, const Ip4Addr& addr):
     loop_(loop),
     addr_(addr),
@@ -128,4 +130,5 @@ void TcpServer::RemoveConnInLoop(const TcpConnPtr& conn) {
     size_t n = conns_.erase(conn);
     EventLoop* ioLoop = conn->GetLoop();
     ioLoop->QueueInLoop(std::bind(&TcpConn::Close, conn));
+}
 }

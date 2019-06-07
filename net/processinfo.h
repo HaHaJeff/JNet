@@ -5,6 +5,7 @@
 #include <vector>
 #include "timestamp.h"
 
+namespace jnet {
 
 namespace ProcessInfo {
     pid_t pid();
@@ -42,4 +43,5 @@ namespace ProcessInfo {
     std::vector<pid_t> threads();
 }
 
+}
 #endif

@@ -3,7 +3,8 @@
 #include "unit_test.h"
 #include <iostream>
 
-using namespace rpc;
+using namespace jrpc;
+using namespace jnet;
 
 void func(const TcpConnPtr& conn, const MessagePtr&) {
 }

@@ -1,5 +1,7 @@
 #include "timer.h"
 
+namespace jnet {
+
 std::atomic<int64_t> Timer::s_numCreated_;
 
 void Timer::Restart(TimeStamp now) {
@@ -9,4 +11,5 @@ void Timer::Restart(TimeStamp now) {
     else {
         expiration_ = TimeStamp();
     }
+}
 }

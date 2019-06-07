@@ -2,7 +2,10 @@
 #include "epollpoller.h"
 #include "pollpoller.h"
 
+namespace jnet {
+
 Poller* Poller::NewDefaultPoller(EventLoop* loop) {
     return new EpollPoller(loop);
     //return new PollPoller(loop);
+}
 }

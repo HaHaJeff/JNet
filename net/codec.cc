@@ -4,6 +4,8 @@
 #include <memory>
 #include <stdlib.h>
 
+namespace jnet {
+
 int LineCode::TryDecode(const std::string& data, std::string& msg) {
     int len = 0;
     auto pos = data.find('\n');
@@ -27,4 +29,5 @@ int LengthCode::TryDecode(const std::string& data, std::string& msg) {
 
 void LengthCode::Encode(std::string msg, Buffer& buffer) {
 
+}
 }

@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+namespace jnet {
+
 class Timer;
 
 class TimerId {
@@ -16,4 +18,5 @@ private:
     int64_t sequence_;
 };
 
+}
 #endif

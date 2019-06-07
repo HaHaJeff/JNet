@@ -14,6 +14,7 @@
 #include "tcpserver.h"
 #include <thread>
 
+using namespace jnet;
 int func() { 
   Ip4Addr addr("127.0.0.1", 9999);
 

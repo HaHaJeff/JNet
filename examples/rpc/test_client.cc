@@ -4,8 +4,9 @@
 #include <google/protobuf/descriptor.h>
 #include <google/protobuf/message.h>
 #include <string>
-using namespace rpc;
+using namespace jrpc;
 using namespace std::placeholders;
+using namespace jnet;
 
 class RpcClient {
 public:

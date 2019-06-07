@@ -6,6 +6,8 @@
 #include "timestamp.h"
 #include "util.h"
 
+namespace jnet {
+
 typedef std::function<void()> TimerCallback;
 
 class Timer : public  Noncopyable {
@@ -43,4 +45,5 @@ private:
     static std::atomic<int64_t> s_numCreated_;
 };
 
+}
 #endif

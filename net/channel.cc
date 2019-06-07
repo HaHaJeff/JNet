@@ -6,6 +6,8 @@
 #include "channel.h"
 #include "eventloop.h"
 
+namespace jnet {
+
 // POLLPRI: urgent data to read
 // POLLNVAL: invalid request, fd not open
 // POLLERR: error condition
@@ -107,4 +109,5 @@ void Channel::Close() {
         RemoveFromLoop();
         fd_ = -1;
     }
+}
 }

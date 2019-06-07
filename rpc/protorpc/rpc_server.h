@@ -14,7 +14,9 @@ class Service;
 #include <map>
 #include <string>
 
-namespace rpc {
+using namespace jnet;
+
+namespace jrpc {
 
 //
 // extend tcpserver

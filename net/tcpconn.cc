@@ -5,6 +5,8 @@
 #include <functional>
 #include <sys/socket.h>
 
+namespace jnet {
+
 TcpConn::TcpConn(EventLoop* loop, const Ip4Addr& local, const Ip4Addr& peer, int timeout) :
     loop_(loop),
     localAddr_(local),
@@ -265,4 +267,5 @@ void TcpConn::Shutdown() {
 
 void TcpConn::ShutdownInLoop() {
     shutdown(fd_, SHUT_WR);
+}
 }

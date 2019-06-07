@@ -3,6 +3,8 @@
 #include "util.h"
 #include "net.h"
 
+namespace jnet {
+
 class Socket : public Noncopyable{
 public:
     explicit Socket(int sockfd) : sockfd_(sockfd) {}
@@ -23,4 +25,5 @@ private:
     const int sockfd_;
 };
 
+}
 #endif

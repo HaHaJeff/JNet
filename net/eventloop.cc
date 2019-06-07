@@ -6,6 +6,8 @@
 #include <unistd.h>
 #include <assert.h>
 
+namespace jnet {
+
 int CreateEventFd() {
     int evtfd = eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
     FATALIF(evtfd < 0, "Failed in eventfd");
@@ -194,4 +196,5 @@ void EventLoop::DoPendingFunctors() {
         func();
     }
     doingPending_ = false;
+}
 }

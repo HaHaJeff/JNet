@@ -5,6 +5,8 @@
 #include <map>
 #include "poller.h"
 
+namespace jnet {
+
 class PollPoller: public Poller {
   public:
     PollPoller(EventLoop* loop);
@@ -23,4 +25,5 @@ class PollPoller: public Poller {
      PollFdList pollfds_;
 };
 
+}
 #endif

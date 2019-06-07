@@ -5,6 +5,8 @@
 #include <condition_variable>
 #include "util.h"
 
+namespace jnet {
+
 class CountDownLatch : Noncopyable {
 public:
     explicit CountDownLatch(int count) : count_(count) {}
@@ -23,4 +25,5 @@ private:
     std::condition_variable cond_;
 };
 
+}
 #endif

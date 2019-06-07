@@ -5,6 +5,8 @@
 #include <atomic>
 #include "util.h"
 
+namespace jnet {
+
 // thanks to handy
 #define hlog(level, ...)                                                                    \
     do {                                                                                    \
@@ -54,5 +56,6 @@ private:
     long rotateInterval_;
     std::string filename_;
 };
+}
 
 #endif

@@ -10,6 +10,8 @@
 #include <mutex>
 #include <future>
 
+namespace jnet {
+
 typedef std::function<void()> Task;
 
 class ThreadPool {
@@ -100,4 +102,5 @@ ThreadPool::~ThreadPool() {
   }
 }
 
+}
 #endif

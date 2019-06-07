@@ -6,6 +6,9 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
+namespace jnet {
+
+
 template<typename To, typename From>
 inline To implicit_cast(From const&f) {
     return f;
@@ -52,4 +55,5 @@ private:
     struct sockaddr_in addr_;
 };
 
+}
 #endif

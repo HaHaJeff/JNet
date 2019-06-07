@@ -5,6 +5,8 @@
 
 #include <assert.h>
 
+namespace jnet {
+
 Connector::Connector(EventLoop* loop, const Ip4Addr& serverAddr)
     : loop_(loop), 
       serverAddr_(serverAddr),
@@ -46,4 +48,5 @@ void Connector::Connect() {
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     Net::SetNonBlock(sockfd);
     Net::Connect(sockfd, sockaddr_cast(&serverAddr_.GetAddr()));
+}
 }

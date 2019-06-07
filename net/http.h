@@ -53,6 +53,8 @@
  * POST提交，把提交的数据放置在HTTP的body中，理论上数控不受限制，但实际上各个WEB服务器会规定POST提交数据大小的限制
  * */
 
+namespace jnet {
+
 class HttpMsg {
 public:
   enum Result {Error, Complete, NotComplete, Continue};
@@ -209,5 +211,6 @@ private:
   std::map<std::string, std::map<std::string, HttpCallBack>> cbs_;
 };
 
+}
 
 #endif

@@ -20,6 +20,8 @@
 #include <string.h>
 #include <string>
 
+namespace jnet {
+
 class Slice {
  public:
   // Create an empty slice.
@@ -103,6 +105,7 @@ inline int Slice::compare(const Slice& b) const {
   return r;
 }
 
+}
 
 
 #endif  // STORAGE_LEVELDB_INCLUDE_SLICE_H_

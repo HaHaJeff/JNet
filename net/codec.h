@@ -4,6 +4,8 @@
 #include <string> 
 #include "buffer.h"
 
+namespace jnet {
+
 class CodecBase {
 public:
     virtual int TryDecode(const std::string& data,  std::string& msg) = 0;
@@ -25,4 +27,5 @@ public:
     CodecBase* Clone() override { return new LengthCode(); }
 };
 
+}
 #endif

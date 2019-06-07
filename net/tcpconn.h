@@ -10,6 +10,8 @@
 #include "codec.h"
 #include "any.h"
 
+namespace jnet {
+
 class TcpConn;
 typedef std::shared_ptr<TcpConn> TcpConnPtr;
 typedef std::function<void(const TcpConnPtr&)> TcpCallBack;
@@ -100,5 +102,6 @@ private:
     int fd_;
 
 };
+}
 
 #endif

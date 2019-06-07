@@ -1,5 +1,7 @@
 #include "status.h"
 
+namespace jnet {
+
 const char* Status::Clone() const {
     if (state_ == nullptr) {
         return state_;
@@ -45,4 +47,5 @@ Status Status::FromFormat(int code, const char* fmt, ...) {
     vsnprintf(p+8, sz-8, fmt, ap);
     va_end(ap);
     return res;
+}
 }

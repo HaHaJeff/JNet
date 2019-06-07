@@ -2,6 +2,8 @@
 #include "eventloop.h"
 #include <assert.h>
 
+namespace jnet {
+
 EventLoopThread::~EventLoopThread() {
     if (started_) {
         if (loop_ != nullptr) {
@@ -29,4 +31,5 @@ void EventLoopThread::RunInThread() {
     latch_.Count();
     loop.Loop();
     loop_ = nullptr;
+}
 }
