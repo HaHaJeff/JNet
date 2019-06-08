@@ -12,7 +12,7 @@
 #include <string.h>
 #include <syslog.h>
 
-#include "log.h"
+#include "net/log.h"
 #include "timestamp.h"
 
 namespace jnet {

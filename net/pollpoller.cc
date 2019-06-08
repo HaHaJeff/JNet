@@ -2,7 +2,7 @@
 #include <errno.h>
 #include <assert.h>
 #include "pollpoller.h"
-#include "log.h"
+#include "net/log.h"
 #include "channel.h"
 #include <stdio.h>
 

@@ -4,7 +4,7 @@
 #include "net.h"
 #include "buffer.h"
 #include "eventloop.h"
-#include "log.h"
+#include "net/log.h"
 #include "timer.h"
 #include "timestamp.h"
 #include "channel.h"

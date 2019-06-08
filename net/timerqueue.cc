@@ -2,7 +2,7 @@
 #include <unistd.h>
 
 #include "timerqueue.h"
-#include "log.h"
+#include "net/log.h"
 #include "timer.h"
 #include "timerid.h"
 #include "eventloop.h"

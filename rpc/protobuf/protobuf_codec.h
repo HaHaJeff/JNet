@@ -6,7 +6,7 @@
 #include "slice.h"
 #include "buffer.h"
 #include "channel.h"
-#include "log.h"
+#include "net/log.h"
 #include "tcpconn.h"
 #include "rpc.pb.h"
 #include <memory>

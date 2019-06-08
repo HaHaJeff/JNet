@@ -4,7 +4,7 @@
 #include <sys/socket.h>
 #include <utility>
 #include "net.h"
-#include "log.h"
+#include "net/log.h"
 #include "util.h"
 
 namespace jnet {

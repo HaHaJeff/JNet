@@ -1,6 +1,6 @@
 OPT ?= -O2 -g
 
-CXXFLAGS += -I./net -I./rpc/protobuf -I./rpc/protorpc -I./raft -lprotobuf $(OPT) -std=c++11 -pthread
+CXXFLAGS += -I./net -I./rpc/protobuf -I./rpc/protorpc -I./raft -lleveldb -lprotobuf $(OPT) -std=c++11 -pthread
 
 NET_SOURCES = $(shell find net -name '*.cc')
 NET_OBJ = $(NET_SOURCES:.cc=.o)

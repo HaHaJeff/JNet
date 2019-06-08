@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include "net.h"
 #include "util.h"
-#include "log.h"
+#include "net/log.h"
 
 namespace jnet {
 
