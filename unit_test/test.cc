@@ -14,7 +14,12 @@
 #include "timerqueue.h"
 #include "eventloop_thread.h"
 #include "eventloop_pool.h"
+
+#include "storage.h"
+#include "raft/log.h"
+
 using namespace jnet;
+using namespace jraft;
 /*
 TEST(TestBase, TimeStamp) {
   TimeStamp t(TimeStamp::Now());
@@ -85,7 +90,6 @@ TEST(TestBase, TimerQueue) {
     queue.AddTimerInLoop(timer);
     queue.HandleRead();
 }
-*/
 
 TEST(TestBase, EventLoop) {
   Logger& log = Logger::GetLogger();
@@ -141,8 +145,20 @@ TEST(TestBase, EventLoopThread) {
 
     while(1); 
 }
+*/
 
-
+TEST(TestBase, Storage) {
+    jraft::LogId logId(1, 2);
+    std::string str1 = logId.to_string();
+    std::cout << "logId 1: 2 " << str1 << std::endl;
+    jraft::Command cmd(CONFIG_CHANGE, "gaobosong");
+    std::string str2 = cmd.to_string();
+    std::cout << "command " << str2 << std::endl;
+    Storage storage("test_storage");
+    storage.append(1, "test_1");
+    std::string str = storage.load(1);
+    std::cout << str << std::endl;
+}
 
 int main()
 {
