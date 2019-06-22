@@ -1,0 +1,24 @@
+syntax = "proto2";
+
+package jraft;
+
+option cc_generic_services = true;
+
+enum EntryType {
+    ENTRY_TYPE_NOOP = 0;
+    ENTRY_TYPE_DATA = 1;
+    ENTRY_TYPE_CONFIGURATION = 3;
+}
+
+message LogEntry {
+    required EntryType type = 1;
+    required int64 term = 2;
+    required int64 index = 3;
+    required string command = 4;
+}
+
+message PersistState {
+    required int64 currentTerm = 1;
+    required int64 votedFor = 2;
+    repeated LogEntry logs = 3;
+}
