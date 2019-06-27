@@ -6,6 +6,7 @@
 #include "config.h"
 #include "random.h"
 #include "raft/log.h"
+#include "raft/state.pb.h"
 
 namespace jraft {
 
@@ -18,7 +19,7 @@ class RequestVoteReply;
 class Raft {
 public:
 
-    Raft(const Config&, const std::vector<RaftPeer*>);
+    Raft(const Config&);
 
     //
     // Call this function on every node
@@ -50,6 +51,7 @@ public:
     // log[]: log entries, each entry contains command for state macgine, and term when entry was received by leader(first index is 1)
     //
     void Persist();
+    void ReadPersist();
 
 private:
     void ToFollower();
@@ -75,11 +77,18 @@ private:
     };
 
     //
+    // For persist
+    //
+    Storage storage_;
+
+    //
     // Updated on stable storage before responding to RPCs
     //
-    int64_t term_;
-    int64_t votedFor_;
-    std::vector<LogEntry> logs_;
+    // use protobuf repeated field
+    PersistState persistState_;
+    // int64_t term_;
+    // int64_t votedFor_;
+    // std::vector<LogEntry> logs_;
 
     // 
     // Volatile state on all servers

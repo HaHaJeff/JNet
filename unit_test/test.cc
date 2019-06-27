@@ -17,6 +17,7 @@
 
 #include "storage.h"
 #include "raft/log.h"
+#include "raft/state.pb.h"
 
 using namespace jnet;
 using namespace jraft;
@@ -148,16 +149,37 @@ TEST(TestBase, EventLoopThread) {
 */
 
 TEST(TestBase, Storage) {
-    jraft::LogId logId(1, 2);
-    std::string str1 = logId.to_string();
-    std::cout << "logId 1: 2 " << str1 << std::endl;
-    jraft::Command cmd(CONFIG_CHANGE, "gaobosong");
-    std::string str2 = cmd.to_string();
-    std::cout << "command " << str2 << std::endl;
+
+    LogEntry entry;
+    entry.set_type(EntryType::ENTRY_TYPE_DATA);
+    entry.set_term(2);
+    entry.set_index(3);
+    entry.set_command("gaobosong");
+
+    std::string entry_str;
+    entry.SerializeToString(&entry_str);
+
+    LogEntry entry1;
+    entry1.ParseFromString(entry_str);
+
+    std::cout << "Type:" << entry1.type() << std::endl;
+    std::cout << "Term:" << entry1.term() << std::endl;
+    std::cout << "index:" << entry1.index() << std::endl;
+    std::cout << "Command:" << entry1.command() << std::endl;
+
     Storage storage("test_storage");
-    storage.append(1, "test_1");
-    std::string str = storage.load(1);
-    std::cout << str << std::endl;
+    std::string input;
+    entry1.SerializeToString(&input);
+    storage.SavePersist(input);
+    std::string str = storage.ReadPersist();
+
+    LogEntry entry2;
+    entry2.ParseFromString(str);
+
+    std::cout << "Type:" << entry2.type() << std::endl;
+    std::cout << "Term:" << entry2.term() << std::endl;
+    std::cout << "index:" << entry2.index() << std::endl;
+    std::cout << "Command:" << entry2.command() << std::endl;
 }
 
 int main()

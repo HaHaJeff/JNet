@@ -10,11 +10,12 @@ namespace jraft {
 class Storage {
 public:
     Storage(const std::string& path);
-    void append(int64_t key, const std::string& value);
-    std::string load(int64_t key);
     ~Storage();
+    void SavePersist(const std::string& input);
+    std::string ReadPersist();
 private:
     leveldb::DB* pDb_;
+    const std::string key_ = "leader";
 };
 
 }
