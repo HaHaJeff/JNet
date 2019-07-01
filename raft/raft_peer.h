@@ -35,9 +35,11 @@ public:
     //
     // type match 
     //
-    void OnPreVote(const RequestVoteRequest* request, RequestVoteResponse* response) { onPreVote_(*request, *response); }
-    void OnRequestVote(const RequestVoteRequest* request, RequestVoteResponse* response) { onRequestVote_(*request, *response); }
-    void OnAppendEntries(const AppendEntriesRequest* request, AppendEntriesResponse* response) { onAppendEntries_(*request, *response); }
+    void OnPreVote(const RequestVoteRequest* request, RequestVoteResponse* response) { this->onPreVote_(*request, *response); }
+    void OnRequestVote(const RequestVoteRequest* request, RequestVoteResponse* response) { this->onRequestVote_(*request, *response); }
+    void OnAppendEntries(const AppendEntriesRequest* request, AppendEntriesResponse* response) { this->onAppendEntries_(*request, *response); }
+
+    void Done(const RequestVoteRequest* request) {}
 
 private:
     TcpConnPtr conn_;

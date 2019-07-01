@@ -31,6 +31,15 @@ void Raft::OnPreVote(const RequestVoteRequest& request, const RequestVoteRespons
 
 }
 
+void Raft::StartRequestVote() {
+    RequestVoteRequest request;
+}
+
+void Raft::Propose(const std::string& cmd) {
+
+}
+
+/*
 void Raft::Persist() {
     std::string input;
     persistState_.SerializeToString(&input);
@@ -41,6 +50,7 @@ void Raft::ReadPersist() {
     std::string info = storage_.ReadPersist();
     persistState_.ParseFromString(info);
 }
+*/
 
 void Raft::ToFollower() {
 

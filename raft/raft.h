@@ -99,8 +99,8 @@ private:
     //
     // use protobuf repeated field
     PersistState persistState_;
-    // int64_t term_;
-    // int64_t votedFor_;
+    int64_t term_;
+    int64_t votedFor_;
     // std::vector<LogEntry> logs_;
 
     // 

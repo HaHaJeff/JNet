@@ -156,30 +156,20 @@ TEST(TestBase, Storage) {
     entry.set_index(3);
     entry.set_command("gaobosong");
 
-    std::string entry_str;
-    entry.SerializeToString(&entry_str);
-
-    LogEntry entry1;
-    entry1.ParseFromString(entry_str);
-
-    std::cout << "Type:" << entry1.type() << std::endl;
-    std::cout << "Term:" << entry1.term() << std::endl;
-    std::cout << "index:" << entry1.index() << std::endl;
-    std::cout << "Command:" << entry1.command() << std::endl;
-
     Storage storage("test_storage");
-    std::string input;
-    entry1.SerializeToString(&input);
-    storage.SavePersist(input);
-    std::string str = storage.ReadPersist();
+    storage.PutCurrentTerm(2);
+    storage.PutVotedFor(0);
+    storage.PutFirstIndex(3);
+    storage.PutLastIndex(3);
+    storage.PutEntry(entry);
 
-    LogEntry entry2;
-    entry2.ParseFromString(str);
+    std::vector<LogEntry> ans = storage.GetEntry();
 
-    std::cout << "Type:" << entry2.type() << std::endl;
-    std::cout << "Term:" << entry2.term() << std::endl;
-    std::cout << "index:" << entry2.index() << std::endl;
-    std::cout << "Command:" << entry2.command() << std::endl;
+    for (auto& v : ans) {
+      std::cout << "term:" << v.term() << std::endl;
+      std::cout << "index:" << v.index() << std::endl;
+      std::cout << "command:" << v.command() << std::endl;
+    }
 }
 
 int main()

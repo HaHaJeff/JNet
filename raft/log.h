@@ -6,8 +6,18 @@
 //
 #include <memory>
 #include "storage.h"
-
+#include "state.pb.h"
 namespace jraft {
+
+class Log {
+public:
+    Log() {}
+
+private:
+    int64_t firstIndex_;
+    int64_t lastIndex_;
+    std::vector<LogEntry> entries_;
+};
 
 struct LogId {
     LogId() : index_(0), term_(0) {}
