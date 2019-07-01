@@ -7,9 +7,10 @@ option cc_generic_services = true;
 
 message RequestVoteRequest {
     required int64 term = 1;
-    required int64 candidateId = 2;
-    required int64 lastLogIndex = 3;
-    required int64 lastLogTerm = 4;
+    required string peerId = 2;
+    required int64 candidateId = 3;
+    required int64 lastLogIndex = 4;
+    required int64 lastLogTerm = 5;
 }
 
 message RequestVoteResponse {
@@ -19,7 +20,7 @@ message RequestVoteResponse {
 
 message AppendEntriesRequest {
     required int64 term = 1;
-    required int64 leaderId = 2;
+    required string peerId = 2;
     required int64 prevLogIndex = 3;
     required int64 prevLogTerm = 4;
     repeated string entries = 5;

@@ -12,9 +12,9 @@ namespace jraft {
 
 class RaftPeer;
 class AppendEntriesRequest;
-class AppendEntriesReply;
+class AppendEntriesResponse;
 class RequestVoteRequest;
-class RequestVoteReply;
+class RequestVoteResponse;
 
 class Raft {
 public:
@@ -25,23 +25,36 @@ public:
     // Call this function on every node
     // if the raft instance can append this entries, reply true
     //
-    void AppendEntries(const AppendEntriesRequest&, AppendEntriesReply&);
+    void AppendEntries(const AppendEntriesRequest&, AppendEntriesResponse&);
     
     //
     // Call this function on leader
     // if the this request has got voted in a majority qurom, incr commitedindex and update some infomation
     //
-    void OnAppendEntries(int, const AppendEntriesRequest&, const AppendEntriesReply&);
+    void OnAppendEntries(const AppendEntriesRequest&, const AppendEntriesResponse&);
 
     //
     // Call this function on every node
     //
-    void RequestVote(const RequestVoteRequest&, RequestVoteReply&);
+    void RequestVote(const RequestVoteRequest&, RequestVoteResponse&);
 
     //
     // Call this function on leader
     //
-    void OnRequestVote(int, const RequestVoteRequest&, const RequestVoteReply&);
+    void OnRequestVote(const RequestVoteRequest&, const RequestVoteResponse&);
+
+    //
+    // Call this function on every node
+    //
+    void PreVote(const RequestVoteRequest&, RequestVoteResponse&);
+
+    //
+    // Call this function on leader
+    //
+    void OnPreVote(const RequestVoteRequest&, const RequestVoteResponse&);
+
+    void StartRequestVote();
+    void Propose(const std::string& cmd);
 
     //
     // Call this function on every node
@@ -107,8 +120,6 @@ private:
     //
     int64_t id_;
     int64_t voted_;
-
-    //Persister persister_;
 };
 
 struct RaftState {
@@ -140,7 +151,7 @@ struct RaftState {
     //
     // peer rpc server
     //
-    std::vector<RaftPeer*>& peers_;
+    std::vector<RaftPeer*> peers_;
 };
 
 }

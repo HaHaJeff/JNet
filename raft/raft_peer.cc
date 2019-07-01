@@ -7,7 +7,9 @@ void RaftPeer::PreVote(const RequestVoteRequest& request, RequestVoteResponse& r
 }
 
 void RaftPeer::RequestVote(const RequestVoteRequest& request, RequestVoteResponse& reply) {
-    std::cout << "Not Implented" << std::endl;
+    RequestVoteResponse* response = new RequestVoteResponse;
+    ::google::protobuf::Closure* closure = ::google::protobuf::NewCallback(this, OnRequestVote, &request, response);
+    stub_.RequestVote(nullptr, &request, response, closure);
 }
 
 void RaftPeer::AppendEntries(const AppendEntriesRequest& request, AppendEntriesResponse& reply) {
