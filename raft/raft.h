@@ -12,37 +12,47 @@ namespace jraft {
 
 class RaftPeer;
 class AppendEntriesRequest;
-class AppendEntriesReply;
+class AppendEntriesResponse;
 class RequestVoteRequest;
-class RequestVoteReply;
+class RequestVoteResponse;
 
 class Raft {
 public:
 
     Raft(const Config&);
 
+
     //
     // Call this function on every node
     // if the raft instance can append this entries, reply true
     //
-    void AppendEntries(const AppendEntriesRequest&, AppendEntriesReply&);
+    void AppendEntries(const AppendEntriesRequest&, AppendEntriesResponse&);
     
     //
     // Call this function on leader
     // if the this request has got voted in a majority qurom, incr commitedindex and update some infomation
     //
-    void OnAppendEntries(int, const AppendEntriesRequest&, const AppendEntriesReply&);
+    void OnAppendEntries(int, const AppendEntriesRequest&, const AppendEntriesResponse&);
 
     //
     // Call this function on every node
     //
-    void RequestVote(const RequestVoteRequest&, RequestVoteReply&);
+    void RequestVote(const RequestVoteRequest&, RequestVoteResponse&);
 
     //
     // Call this function on leader
     //
-    void OnRequestVote(int, const RequestVoteRequest&, const RequestVoteReply&);
+    void OnRequestVote(int, const RequestVoteRequest&, const RequestVoteResponse&);
 
+    //
+    // Call this function on every node
+    //
+    void Prevote(const RequestVoteRequest&, RequestVoteResponse&);
+
+    //
+    // Call this function on leader
+    //
+    void OnPrevote(int, const RequestVoteRequest&, const RequestVoteResponse&);
     //
     // Call this function on every node
     // Updated on stable storage before responding tp RPCS
@@ -84,11 +94,12 @@ private:
     //
     // Updated on stable storage before responding to RPCs
     //
-    // use protobuf repeated field
-    PersistState persistState_;
     // int64_t term_;
     // int64_t votedFor_;
     // std::vector<LogEntry> logs_;
+    //
+    // use protobuf repeated field
+    PersistState persistState_;
 
     // 
     // Volatile state on all servers
@@ -107,8 +118,6 @@ private:
     //
     int64_t id_;
     int64_t voted_;
-
-    //Persister persister_;
 };
 
 struct RaftState {

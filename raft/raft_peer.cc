@@ -2,15 +2,16 @@
 
 namespace jraft {
 
-void RaftPeer::PreVote(const RequestVoteRequest& request, RequestVoteResponse& reply) {
+void RaftPeer::PreVote(const RequestVoteRequest& request) {
     std::cout << "Not Implented" << std::endl;
 }
 
-void RaftPeer::RequestVote(const RequestVoteRequest& request, RequestVoteResponse& reply) {
+void RaftPeer::RequestVote(const RequestVoteRequest& request) {
     std::cout << "Not Implented" << std::endl;
 }
 
-void RaftPeer::AppendEntries(const AppendEntriesRequest& request, AppendEntriesResponse& reply) {
+void RaftPeer::AppendEntries(const AppendEntriesRequest& request) {
     std::cout << "Not Implented" << std::endl;
 }
+
 }

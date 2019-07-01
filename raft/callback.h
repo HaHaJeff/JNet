@@ -5,7 +5,8 @@
 #include <functional>
 namespace jraft {
 
-typedef std::function<void(int, const RequestVoteRequest&, const RequestVoteReply&)> RequestVoteCallback;
-typedef std::function<void(int, const AppendEntriesRequest&, const AppendEntriesReply&)> AppendEntriesCallback;
+typedef std::function<void(int, const RequestVoteRequest&, const RequestVoteResponse&)> OnPrevoteCallback;
+typedef std::function<void(int, const RequestVoteRequest&, const RequestVoteResponse&)> OnRequestVoteCallback;
+typedef std::function<void(int, const AppendEntriesRequest&, const AppendEntriesResponse&)> OnAppendEntriesCallback;
 }
 #endif

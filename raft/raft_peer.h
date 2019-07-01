@@ -2,6 +2,7 @@
 #include "tcpconn.h"
 #include "rpc_channel.h"
 #include "raft.pb.h"
+#include "callback.h"
 #include <google/protobuf/descriptor.h>
 #include <google/protobuf/message.h>
 
@@ -23,13 +24,22 @@ public:
         channel_->SetConn(conn_);
     }
 
-    void PreVote(const RequestVoteRequest&, RequestVoteResponse&);
-    void RequestVote(const RequestVoteRequest&, RequestVoteResponse&);
-    void AppendEntries(const AppendEntriesRequest&, AppendEntriesResponse&);
+    void SetOnPrevoteCallback(const OnPrevoteCallback& prevote) { onPrevote_ = prevote; }
+    void SetOnRequestVoteCallback(const OnRequestVoteCallback& requestVote) { onRequestVote_ = requestVote; }
+    void SetOnAppendEntriesCallback(const OnAppendEntriesCallback& appendEntries) { onAppendEntries_ = appendEntries; }
+
+    void PreVote(const RequestVoteRequest&);
+    void RequestVote(const RequestVoteRequest&);
+    void AppendEntries(const AppendEntriesRequest&);
+
 
 private:
     TcpConnPtr conn_;
     RpcChannelPtr channel_;
     RaftService::Stub stub_;
+
+    OnPrevoteCallback onPrevote_;
+    OnRequestVoteCallback onRequestVote_;
+    OnAppendEntriesCallback onAppendEntries_;
 };
 }

@@ -5,3 +5,4 @@
 /test/*.o
 /rpc/protobuf/*.o
 /rpc/protorpc/*.o
+.vscode/
