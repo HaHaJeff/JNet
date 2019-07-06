@@ -25,3 +25,36 @@
 - 一个bug
     - 在做rpc功能是需要使用Message的向下转换，但是我的Message*是采用std::shared_ptr来做的，最开始采用raw pointer结合dynamic_cast，然后运行出segment fault，于是core gdb乎，问题定位于ProtobufCodec::OnMessage的messageCallback_回调后的shared_ptr回调后，发现其dtor函数core dump了，重复释放内存，这很危险
     - 调试了一上午，发现在ProtobufCodeT::OnRpcMessage中需要一次Message的down_cast，于是自己造了个shared_ptr down_cast的轮子
+
+- protobuf NewCallback
+
+在raft中使用protobuf提供的NewCallback函数时遇到的问题
+
+```
+struct A {
+    typedef std::function<void(Arg1*, Arg2*)> OnRequestCallback;
+    OnRequestCallback onRequest_;
+    NewCallback(nullptr, this, onRequest_, arg1, arg2);
+}
+```
+
+编译报错，无法实例化template NewCallback    问题解决：查看protobuf的NewCallback定义，首先类型必须匹配，参数类型必须为pointer
+
+```
+struct A {
+    typedef std::function<void(Arg1*, Arg2*)> OnRequestCallback;
+    OnRequestCallback onRequest_;
+    NewCallback(nullptr, this, onRequest_, &arg1, &arg2);
+}
+```
+
+编译报错：invalid use no static member function
+
+```
+struct A {
+    typedef std::function<void(Arg1*, Arg2*)> OnRequestCallback;
+    OnRequestCallback onRequest_;
+    NewCallback(nullptr, this, A::onRequest_, &arg1, &arg2);
+}
+```
+

@@ -5,4 +5,9 @@
 /test/*.o
 /rpc/protobuf/*.o
 /rpc/protorpc/*.o
+test*
+/raft/test*
+/raft/*.o
+/unit_test/*.o
 .vscode/
+test_storage/

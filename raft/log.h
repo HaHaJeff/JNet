@@ -11,11 +11,12 @@ namespace jraft {
 
 class Log {
 public:
-    Log() {}
-
+    Log(Storage* storage) {}
+    
 private:
     int64_t firstIndex_;
     int64_t lastIndex_;
+    Storage* storage_;
     std::vector<LogEntry> entries_;
 };
 
