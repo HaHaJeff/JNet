@@ -16,11 +16,24 @@ void Raft::OnAppendEntries(const AppendEntriesRequest& request, const AppendEntr
 }
 
 void Raft::RequestVote(const RequestVoteRequest& request, RequestVoteResponse& reply) {
-
+    if (role_ != kCandidate) {
+        jnet::INFO("node was not candidater, but has requested vote");
+        return;
+    }
+    
+    reply.set_term(persistState_.currentTerm());
+    if (request.term < persistState_.currentTerm() || persistState_.votedFor == -1 || NewestLog(request))
+    {
+        reply.set_voteGranted(true);
+    } 
+    else
+    {
+        reply.set_voteGranted(false);
+    }
 }
 
 void Raft::OnRequestVote(const RequestVoteRequest& request, const RequestVoteResponse& reply) {
-
+    
 }
 
 void Raft::PreVote(const RequestVoteRequest& request, RequestVoteResponse& reply) {
@@ -57,7 +70,7 @@ void Raft::ToFollower() {
 }
 
 void Raft::ToCandidater() {
-
+    
 }
 
 void Raft::ToLeader() {

@@ -74,6 +74,8 @@ private:
     void TickOnHeartBeat();
     void TickOnElection();
 
+    bool NewestLog(const RequestVoteRequest& request);
+
     int64_t heartbeatTimeout_;
     int64_t electionTimeout_;
     int64_t randomizedElectionTimeout_;
@@ -87,7 +89,7 @@ private:
         kLeader,
         kCandidate,
         kFollower,
-    };
+    } role_;
 
     //
     // For persist
@@ -100,7 +102,7 @@ private:
     // use protobuf repeated field
     PersistState persistState_;
     int64_t term_;
-    int64_t votedFor_;
+    int64_t votedFor_; 
     // std::vector<LogEntry> logs_;
 
     // 
