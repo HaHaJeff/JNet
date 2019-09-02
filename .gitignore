@@ -8,6 +8,7 @@
 /rpc/protorpc/*.o
 /rpc/protorpc/*.pb.*
 test*
+http_server
 /raft/test*
 /raft/*.o
 /raft/*.pb.*
