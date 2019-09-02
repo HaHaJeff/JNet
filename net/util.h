@@ -9,8 +9,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-namespace jnet {
-
 // private inherite Noncopyable 
 // get the feature of Noncopyable
 class Noncopyable {
@@ -42,5 +40,4 @@ public:
 private:
     std::function<void()> functor_;
 };
-}
 #endif

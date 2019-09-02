@@ -5,15 +5,21 @@
 #include <atomic>
 #include "util.h"
 
-namespace jnet {
-
 // thanks to handy
-#define hlog(level, ...)                                                                    \
-    do {                                                                                    \
-        if (level <= Logger::GetLogger().GetLogLevel()) {                                   \
+/*#define hlog(level, ...)  {                                                                 \
+    do                                                                                      \
+    {                                                                                       \
+        if (level <= Logger::GetLogger().GetLogLevel())                                     \
+        {                                                                                   \
             Logger::GetLogger().Write(level, __FILE__, __LINE__, __func__, __VA_ARGS__);    \
         }                                                                                   \
-    } while(0)
+    }                                                                                       \
+    while(0)                                                                                \
+}*/
+
+class Logger;
+
+void hlog(int level, const char*format, ...);
 
 #define TRACE(...) hlog(Logger::LTRACE, __VA_ARGS__)
 #define DEBUG(...) hlog(Logger::LDEBUG, __VA_ARGS__)
@@ -56,6 +62,4 @@ private:
     long rotateInterval_;
     std::string filename_;
 };
-}
-
 #endif

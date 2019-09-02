@@ -20,9 +20,9 @@ EXAMPLES_OBJ = $(EXAMPLES_SOURCE:.cc=.o)
 TEST_SOURCES = $(shell find unit_test -name '*.cc')
 TEST_OBJ = $(TEST_SOURCES:.cc=.o)
 
-all: test http_server test_client test_server test_codec test_rpc_client test_rpc_server
+all: test http_server test_client test_server test_rpc_client test_rpc_server
 
-test: unit_test/unit_test.o unit_test/test.o $(NET_OBJ) $(RAFT_OBJ)
+test: unit_test/unit_test.o unit_test/test.o $(NET_OBJ) $(RPC_PROTOBUF_OBJ) $(RPC_OBJ) $(RAFT_OBJ)
 	$(CXX) $^ -o $@ ${CXXFLAGS}
 
 test_client: examples/pingpong/test_client.o $(NET_OBJ)

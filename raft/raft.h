@@ -5,8 +5,8 @@
 #include <stdint.h>
 #include "config.h"
 #include "random.h"
-#include "raft/log.h"
-#include "raft/state.pb.h"
+#include "raft_log.h"
+#include "state.pb.h"
 
 namespace jraft {
 
@@ -15,6 +15,7 @@ class AppendEntriesRequest;
 class AppendEntriesResponse;
 class RequestVoteRequest;
 class RequestVoteResponse;
+class Storage;
 
 class Raft {
 public:
@@ -94,7 +95,7 @@ private:
     //
     // For persist
     //
-    Storage storage_;
+    Storage* storage_;
 
     //
     // Updated on stable storage before responding to RPCs

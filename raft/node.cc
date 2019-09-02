@@ -1,5 +1,7 @@
 #include "node.h"
 
+using namespace jrpc;
+using namespace jnet;
 namespace jraft {
 Node::Node(const Config& config, jnet::EventLoop* loop) : raft_(config),
                                                           loop_(loop),

@@ -5,8 +5,8 @@
 #include <leveldb/db.h>
 #include <leveldb/write_batch.h>
 #include <leveldb/comparator.h>
-#include "raft/state.pb.h"
-#include "net/log.h"
+#include "state.pb.h"
+#include "log.h"
 
 namespace jraft {
 

@@ -1,6 +1,6 @@
 #include "http.h"
 #include "status.h"
-#include "net/log.h"
+#include "log.h"
 
 namespace jnet {
 

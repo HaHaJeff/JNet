@@ -5,9 +5,11 @@
 // for shared_ptr and unique_ptr
 //
 #include <memory>
-#include "storage.h"
+
 #include "state.pb.h"
 namespace jraft {
+
+class Storage;
 
 class Log {
 public:

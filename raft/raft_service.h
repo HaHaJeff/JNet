@@ -1,8 +1,8 @@
 #ifndef RAFTSERVICE_H
 #define RAFTSERVICE_H
 
-#include "raft/raft.pb.h"
-#include "raft/callback.h"
+#include "raft.pb.h"
+#include "callback.h"
 
 namespace jraft {
 

@@ -1,5 +1,5 @@
 #include "rpc_channel.h"
-#include "net/log.h"
+#include "log.h"
 #include "channel.h"
 #include "rpc.pb.h"
 #include <google/protobuf/descriptor.h>

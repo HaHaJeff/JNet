@@ -1,4 +1,4 @@
-#include "raft/raft_service.h"
+#include "raft_service.h"
 
 namespace jraft{
 

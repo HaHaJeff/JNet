@@ -1,7 +1,7 @@
 #include "connector.h"
 #include "channel.h"
 #include "eventloop.h"
-#include "net/log.h"
+#include "log.h"
 
 #include <assert.h>
 

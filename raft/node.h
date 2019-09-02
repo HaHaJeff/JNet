@@ -1,8 +1,8 @@
 #ifndef NODE_H
 #define NODE_H
 
-#include "rpc_server.h"
 #include "raft.h"
+#include "rpc_server.h"
 #include "raft_service.h"
 
 namespace jraft {

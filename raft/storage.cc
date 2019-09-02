@@ -1,8 +1,6 @@
 #include "storage.h"
-#include "net/log.h"
-#include "raft/log.h"
-
-using namespace jnet;
+#include "log.h"
+#include "raft_log.h"
 
 namespace jraft {
 
