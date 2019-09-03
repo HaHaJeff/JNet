@@ -26,21 +26,24 @@ void Raft::RequestVote(const RequestVoteRequest& request, RequestVoteResponse& r
     reply.set_term(persistState_.currentterm());
     if (request.term() < persistState_.currentterm() || persistState_.votedfor() == -1 || NewestLog(request))
     {
-        INFO("granted term %lld for peerid = %s", request.term(), request.peerid().c_str());
+        INFO("granted term %lld for peerid = %lld", request.term(), request.peerid());
         reply.set_votegranted(true);
     } 
     else
     {
-        INFO("refused term %lld for peerid = %s", request.term(), request.peerid().c_str());
+        INFO("refused term %lld for peerid = %lld", request.term(), request.peerid());
         reply.set_votegranted(false);
     }
 }
 
 void Raft::OnRequestVote(const RequestVoteRequest& request, const RequestVoteResponse& reply) {
+    // other's term is greater than currentterm,
+    // so change role to follower
     if (reply.term() > persistState_.currentterm())
     {
         ToFollower();
     }
+
 
 }
 
