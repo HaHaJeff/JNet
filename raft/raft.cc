@@ -3,32 +3,43 @@
 #include "raft_peer.h"
 #include "storage.h"
 
-namespace jraft{
+namespace jraft
+{
 
-Raft::Raft(const Config& config) : storage_(new Storage(config.path_)),
-                                   random_(0, 0, 0) {
+Raft::Raft(const Config &config) : storage_(new Storage(config.path_)),
+                                   random_(0, 0, 0),
+                                   logs_(storage_)
+{
 }
 
-void Raft::AppendEntries(const AppendEntriesRequest& request, AppendEntriesResponse& reply) {
-    
+void Raft::AppendEntries(const AppendEntriesRequest &request, AppendEntriesResponse &reply)
+{
 }
 
-void Raft::OnAppendEntries(const AppendEntriesRequest& request, const AppendEntriesResponse& reply) {
-
+void Raft::OnAppendEntries(const AppendEntriesRequest &request, const AppendEntriesResponse &reply)
+{
 }
 
-void Raft::RequestVote(const RequestVoteRequest& request, RequestVoteResponse& reply) {
-    if (role_ != kCandidate) {
+void Raft::RequestVote(const RequestVoteRequest &request, RequestVoteResponse &reply)
+{
+    if (role_ != kCandidater)
+    {
         INFO("node was not candidater, but has requested vote");
         return;
     }
-    
-    reply.set_term(persistState_.currentterm());
-    if (request.term() < persistState_.currentterm() || persistState_.votedfor() == -1 || NewestLog(request))
+
+    reply.set_term(currentTerm_);
+    // reply false if request.term < currentTerm
+    // if votedFor is null or candidateId && 
+    // candidate's log is at least as up-to-date as receive's log
+    // gran vote
+    if (request.term() < currentTerm_ &&
+        (votedFor_ == -1 || votedFor_ == request.peerid()) && 
+        NewestLog(request))
     {
         INFO("granted term %lld for peerid = %lld", request.term(), request.peerid());
         reply.set_votegranted(true);
-    } 
+    }
     else
     {
         INFO("refused term %lld for peerid = %lld", request.term(), request.peerid());
@@ -36,60 +47,94 @@ void Raft::RequestVote(const RequestVoteRequest& request, RequestVoteResponse& r
     }
 }
 
-void Raft::OnRequestVote(const RequestVoteRequest& request, const RequestVoteResponse& reply) {
+void Raft::OnRequestVote(const RequestVoteRequest &request, const RequestVoteResponse &reply)
+{
     // other's term is greater than currentterm,
     // so change role to follower
-    if (reply.term() > persistState_.currentterm())
+    if (reply.term() > currentTerm_)
     {
         ToFollower();
     }
-
-
 }
 
-void Raft::PreVote(const RequestVoteRequest& request, RequestVoteResponse& reply) {
-
+void Raft::PreVote(const RequestVoteRequest &request, RequestVoteResponse &reply)
+{
 }
 
-void Raft::OnPreVote(const RequestVoteRequest& request, const RequestVoteResponse& reply) {
-
+void Raft::OnPreVote(const RequestVoteRequest &request, const RequestVoteResponse &reply)
+{
 }
 
-void Raft::StartRequestVote() {
+void Raft::StartRequestVote()
+{
     RequestVoteRequest request;
 }
 
-void Raft::Propose(const std::string& cmd) {
+void Raft::Propose(const std::string &cmd)
+{
+}
+
+void Raft::ToFollower()
+{
+    role_ = kFollower;
+}
+
+void Raft::ToCandidater()
+{
+    role_ = kCandidater;
+    // increment currentTerm
+    SetCurrentTerm(++currentTerm_);
+    // voted for self
+    SetVotedFor(id_);
+    // increment vote count
+    voted_ = 1;
+    // reset election time
+    ResetElectionTime();
+    // send requestVoteRpc to all others servers
+    StartRequestVote();
+}
+
+void Raft::ToLeader()
+{
+    role_ = kLeader;
 
 }
 
-void Raft::ToFollower() {
-
+void Raft::Tick()
+{
 }
 
-void Raft::ToCandidater() {
-    
+void Raft::TickOnHeartBeat()
+{
 }
 
-void Raft::ToLeader() {
-
+void Raft::TickOnElection()
+{
 }
 
-void Raft::Tick() {
-
+void Raft::ResetElectionTime()
+{
+    electionTimeout_ = 0;
 }
 
-void Raft::TickOnHeartBeat() {
-
+void Raft::ResetHeartbeatTime()
+{
+    heartbeatTimeout_ = 0;
 }
 
-void Raft::TickOnElection() {
-
-}
-
-bool Raft::NewestLog(const RequestVoteRequest& request)
+bool Raft::NewestLog(const RequestVoteRequest &request)
 {
     return true;
 }
 
+void Raft::SetCurrentTerm(int64_t term)
+{
+
 }
+
+void Raft::SetVotedFor(int64_t id)
+{
+
+}
+
+} // namespace jraft

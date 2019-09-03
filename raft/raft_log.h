@@ -11,9 +11,9 @@ namespace jraft {
 
 class Storage;
 
-class Log {
+class RaftLog {
 public:
-    Log(Storage* storage) {}
+    RaftLog(Storage* storage) {}
     
 private:
     int64_t firstIndex_;

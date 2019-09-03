@@ -75,7 +75,12 @@ private:
     void TickOnHeartBeat();
     void TickOnElection();
 
+    void ResetElectionTime();
+    void ResetHeartbeatTime();
+
     bool NewestLog(const RequestVoteRequest& request);
+    void SetCurrentTerm(int64_t term);
+    void SetVotedFor(int64_t id);
 
     int64_t heartbeatTimeout_;
     int64_t electionTimeout_;
@@ -88,7 +93,7 @@ private:
     //
     enum Role {
         kLeader,
-        kCandidate,
+        kCandidater,
         kFollower,
     } role_;
 
@@ -101,9 +106,10 @@ private:
     // Updated on stable storage before responding to RPCs
     //
     // use protobuf repeated field
-    PersistState persistState_;
-    int64_t term_;
+    // PersistState persistState_;
+    int64_t currentTerm_;
     int64_t votedFor_; 
+    RaftLog logs_;
     // std::vector<LogEntry> logs_;
 
     // 
