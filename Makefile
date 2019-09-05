@@ -20,8 +20,14 @@ EXAMPLES_OBJ = $(EXAMPLES_SOURCE:.cc=.o)
 TEST_SOURCES = $(shell find unit_test -name '*.cc')
 TEST_OBJ = $(TEST_SOURCES:.cc=.o)
 
-all: test http_server test_client test_server test_rpc_client test_rpc_server
+all: node1 node2 node3 test http_server test_client test_server test_rpc_client test_rpc_server
 
+node1: unit_test/node1.o $(NET_OBJ) $(RPC_PROTOBUF_OBJ) $(RPC_OBJ) $(RAFT_OBJ)
+	$(CXX) $^ -o $@ ${CXXFLAGS}
+node2: unit_test/node2.o $(NET_OBJ) $(RPC_PROTOBUF_OBJ) $(RPC_OBJ) $(RAFT_OBJ)
+	$(CXX) $^ -o $@ ${CXXFLAGS}
+node3: unit_test/node3.o $(NET_OBJ) $(RPC_PROTOBUF_OBJ) $(RPC_OBJ) $(RAFT_OBJ)
+	$(CXX) $^ -o $@ ${CXXFLAGS}
 test: unit_test/unit_test.o unit_test/test.o $(NET_OBJ) $(RPC_PROTOBUF_OBJ) $(RPC_OBJ) $(RAFT_OBJ)
 	$(CXX) $^ -o $@ ${CXXFLAGS}
 
@@ -54,4 +60,4 @@ cleanObj:
 
 .PHONY: clean
 clean:
-	rm test test_client http_server test_server test_codec test_rpc_client test_rpc_server
+	rm test test_client http_server test_server test_codec test_rpc_client test_rpc_server node1 node2 node3

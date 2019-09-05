@@ -54,7 +54,6 @@ public:
     //
     void OnPreVote(const RequestVoteRequest&, const RequestVoteResponse&);
 
-    void StartRequestVote();
     void Propose(const std::string& cmd);
 
     //

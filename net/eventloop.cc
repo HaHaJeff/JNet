@@ -28,7 +28,7 @@ EventLoop::EventLoop()
       quit_(false),
       doingPending_(false)
 {
-    DEBUG("EventLoop created %p", this);
+    DEBUG("EventLoop created");
     wakeupChannel_->SetReadCallback(std::bind(&EventLoop::HandleRead, this));
     //FIXME: there has two epoll_ctl system call
     // can reduce to one time
@@ -37,13 +37,13 @@ EventLoop::EventLoop()
 }
 
 EventLoop::~EventLoop() {
-    DEBUG("EventLoop %p destruct", this);
+    DEBUG("EventLoop destruct");
     wakeupChannel_->RemoveFromLoop();
     close(wakeupFd_);
 }
 
 void EventLoop::Loop() {
-    TRACE("Event loop %p start looping", this);
+    TRACE("Event loop start looping");
 
     while(!quit_) {
         activeChannels_.clear();

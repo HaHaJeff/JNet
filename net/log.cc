@@ -17,6 +17,7 @@
 
 using namespace jnet;
 
+/*
 void hlog(int level, const char *format, ...)
 {
     va_list ap;
@@ -27,6 +28,7 @@ void hlog(int level, const char *format, ...)
     }
     va_end(ap);
 }
+*/
 
 Logger::Logger() : level_(LALL), lastRotate_(time(NULL)), rotateInterval_(86400)
 {

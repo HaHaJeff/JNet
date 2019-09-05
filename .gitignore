@@ -13,5 +13,6 @@ http_server
 /raft/*.o
 /raft/*.pb.*
 /unit_test/*.o
+node*
 .vscode/
 test_storage/

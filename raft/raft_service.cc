@@ -7,7 +7,7 @@ void RaftServiceImpl::PreVote(::google::protobuf::RpcController* controller,
                        ::jraft::RequestVoteResponse* response,
                        ::google::protobuf::Closure* done)
 {
-    preVote_(*request, *response);
+    preVote_(*request, response);
     done->Run();
 }
 
@@ -16,7 +16,7 @@ void RaftServiceImpl::RequestVote(::google::protobuf::RpcController* controller,
                        ::jraft::RequestVoteResponse* response,
                        ::google::protobuf::Closure* done)
 {
-    requestVote_(*request, *response);
+    requestVote_(*request, response);
     done->Run();
 }
 
@@ -25,7 +25,7 @@ void RaftServiceImpl::AppendEntries(::google::protobuf::RpcController* controlle
                        ::jraft::AppendEntriesResponse* response,
                        ::google::protobuf::Closure* done)
 {
-    appendEntries_(*request, *response);
+    appendEntries_(*request, response);
     done->Run();
 }
 

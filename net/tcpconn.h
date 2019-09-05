@@ -63,6 +63,7 @@ public:
     void OnState(const TcpCallBack& cb) { statecb_ = cb; }
     void SendMsg(std::string msg);
 
+    void Connect() { return Connect(loop_, localAddr_, peerAddr_); }
     void Connect(EventLoop* loop, const Ip4Addr& local, const Ip4Addr& peer, int timeout=0);
     void Close();
 

@@ -37,12 +37,12 @@ struct Config {
     //
     // unit of each tick
     //
-    int64_t millisecond = 100;
+    int64_t millisecond_ = 100;
 
     //
     // RPC server adress of this raft node
     //
-    Ip4Addr serverAddress;
+    Ip4Addr serverAddress_;
 
     //
     // peer address exclude this raft node

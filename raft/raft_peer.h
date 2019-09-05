@@ -15,11 +15,10 @@ namespace jraft {
 class RaftPeer {
 public:
     RaftPeer(EventLoop* loop, const Ip4Addr& local, const Ip4Addr& peer) 
-        : conn_(nullptr),
+        : conn_(new TcpConn(loop, local, peer)),
           channel_(new RpcChannel),
           stub_(channel_.get())
     {
-        conn_ = TcpConn::CreateConnection(loop, local, peer);
         conn_->OnRead(std::bind(&RpcChannel::OnMessage, channel_.get(), _1));
         channel_->SetConn(conn_);
     }
@@ -28,9 +27,9 @@ public:
     void SetOnRequestVote(const OnRequestVoteCallback& onRequestVote) { onRequestVote_ = onRequestVote;}
     void SetOnAppendEntries(const OnAppendEntriesCallback& onAppendEntries) { onAppendEntries_ = onAppendEntries;}
 
-    void PreVote(const RequestVoteRequest&, RequestVoteResponse&);
-    void RequestVote(const RequestVoteRequest&, RequestVoteResponse&);
-    void AppendEntries(const AppendEntriesRequest&, AppendEntriesResponse&);
+    void PreVote(const RequestVoteRequest&, RequestVoteResponse*);
+    void RequestVote(const RequestVoteRequest&, RequestVoteResponse*);
+    void AppendEntries(const AppendEntriesRequest&, AppendEntriesResponse*);
 
     //
     // type match 
@@ -39,7 +38,11 @@ public:
     void OnRequestVote(const RequestVoteRequest* request, RequestVoteResponse* response) { this->onRequestVote_(*request, *response); }
     void OnAppendEntries(const AppendEntriesRequest* request, AppendEntriesResponse* response) { this->onAppendEntries_(*request, *response); }
 
-    void Done(const RequestVoteRequest* request) {}
+    // 
+    // after RpcServer start
+    // connect to server 
+    //
+    void Connect() { conn_->Connect();}
 
 private:
     TcpConnPtr conn_;

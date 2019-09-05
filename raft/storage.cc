@@ -36,7 +36,7 @@ int64_t Storage::GetCurrentTerm() {
 }
 
 void Storage::PutVotedFor(int64_t votedFor) {
-    if (votedFor != votedFor) {
+    if (votedFor_ != votedFor) {
         votedFor_ = votedFor;
         Put(kVotedForKey, votedFor);
     }

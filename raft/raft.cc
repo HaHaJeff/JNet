@@ -83,11 +83,6 @@ void Raft::OnPreVote(const RequestVoteRequest &request, const RequestVoteRespons
 {
 }
 
-void Raft::StartRequestVote()
-{
-    RequestVoteRequest request;
-}
-
 void Raft::Propose(const std::string &cmd)
 {
 }
@@ -109,7 +104,6 @@ void Raft::ToCandidater()
     // reset election time
     ResetElectionTime();
     // send requestVoteRpc to all others servers
-    StartRequestVote();
 }
 
 void Raft::ToLeader()

@@ -78,7 +78,6 @@ void EpollPoller::UpdateChannel(Channel *channel)
 void EpollPoller::AddChannel(Channel *channel)
 {
     Poller::AssertInLoopThread();
-
     TRACE("adding channel %lld fd %d events %d epoll %d", (long long)channel->GetId(), channel->GetFd(), channel->GetEvents(), epollfd_);
     Update(EPOLL_CTL_ADD, channel);
     channels_[channel->GetFd()] = channel;

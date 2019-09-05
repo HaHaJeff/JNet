@@ -9,8 +9,8 @@ typedef std::function<void(const RequestVoteRequest&, const RequestVoteResponse&
 typedef std::function<void(const RequestVoteRequest&, const RequestVoteResponse&)> OnRequestVoteCallback;
 typedef std::function<void(const AppendEntriesRequest&, const AppendEntriesResponse&)> OnAppendEntriesCallback;
 
-typedef std::function<void(const RequestVoteRequest&, RequestVoteResponse&)> PreVoteCallback;
-typedef std::function<void(const RequestVoteRequest&, RequestVoteResponse&)> RequestVoteCallback;
-typedef std::function<void(const AppendEntriesRequest&, AppendEntriesResponse&)> AppendEntriesCallback;
+typedef std::function<void(const RequestVoteRequest&, RequestVoteResponse*)> PreVoteCallback;
+typedef std::function<void(const RequestVoteRequest&, RequestVoteResponse*)> RequestVoteCallback;
+typedef std::function<void(const AppendEntriesRequest&, AppendEntriesResponse*)> AppendEntriesCallback;
 }
 #endif

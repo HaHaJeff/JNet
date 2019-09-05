@@ -11,7 +11,9 @@ TcpConn::TcpConn(EventLoop* loop, const Ip4Addr& local, const Ip4Addr& peer, int
     loop_(loop),
     localAddr_(local),
     peerAddr_(peer),
-    connectTimeout_(timeout) {
+    connectTimeout_(timeout),
+    fd_(-1)
+     {
 }
 
 void TcpConn::Attach(EventLoop* loop, int fd, const Ip4Addr& local, const Ip4Addr& peer) {
