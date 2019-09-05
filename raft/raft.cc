@@ -6,9 +6,14 @@
 namespace jraft
 {
 
-Raft::Raft(const Config &config) : storage_(new Storage(config.path_)),
-                                   random_(0, 0, 0),
-                                   logs_(storage_)
+Raft::Raft(const Config &config, const std::vector<RaftPeer *> &peers) : storage_(new Storage(config.path_)),
+                                                                         currentTerm_(0),
+                                                                         votedFor_(-1),
+                                                                         logs_(storage_),
+                                                                         commitIndex_(0),
+                                                                         lastApplied_(0),
+                                                                         peers_(peers),
+                                                                         random_(0, 0, 0)
 {
 }
 
@@ -28,16 +33,18 @@ void Raft::RequestVote(const RequestVoteRequest &request, RequestVoteResponse &r
         return;
     }
 
+    reply.set_peerid(id_);
     reply.set_term(currentTerm_);
     // reply false if request.term < currentTerm
-    // if votedFor is null or candidateId && 
+    // if votedFor is null or candidateId &&
     // candidate's log is at least as up-to-date as receive's log
     // gran vote
     if (request.term() < currentTerm_ &&
-        (votedFor_ == -1 || votedFor_ == request.peerid()) && 
+        (votedFor_ == -1 || votedFor_ == request.peerid()) &&
         NewestLog(request))
     {
         INFO("granted term %lld for peerid = %lld", request.term(), request.peerid());
+        votedFor_ = request.peerid();
         reply.set_votegranted(true);
     }
     else
@@ -49,11 +56,22 @@ void Raft::RequestVote(const RequestVoteRequest &request, RequestVoteResponse &r
 
 void Raft::OnRequestVote(const RequestVoteRequest &request, const RequestVoteResponse &reply)
 {
-    // other's term is greater than currentterm,
-    // so change role to follower
-    if (reply.term() > currentTerm_)
+    if (role_ != kCandidater || reply.term() > currentTerm_ || reply.votegranted() == false)
     {
-        ToFollower();
+        return;
+    }
+    if (reply.votegranted() == false)
+    {
+        return;
+    }
+
+    INFO("node %lld received RequestVoteResponse from node %lld, response term = %lld, currentTerm = %lld, granted = %d",
+          id_, reply.peerid(), reply.term(), currentTerm_, reply.votegranted());
+    ++voted_;
+
+    if (Majority()) 
+    {
+        ToLeader();
     }
 }
 
@@ -97,7 +115,6 @@ void Raft::ToCandidater()
 void Raft::ToLeader()
 {
     role_ = kLeader;
-
 }
 
 void Raft::Tick()
@@ -127,14 +144,17 @@ bool Raft::NewestLog(const RequestVoteRequest &request)
     return true;
 }
 
+bool Raft::Majority() const
+{
+    return voted_ > (peers_.size() + 1) / 2;
+}
+
 void Raft::SetCurrentTerm(int64_t term)
 {
-
 }
 
 void Raft::SetVotedFor(int64_t id)
 {
-
 }
 
 } // namespace jraft

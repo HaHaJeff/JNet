@@ -26,7 +26,7 @@ public:
     void OnAppendEntries(const AppendEntriesRequest&, const AppendEntriesResponse&);
 
 private:
-    Raft raft_;
+    Raft* raft_;
     jnet::EventLoop* loop_;
     jrpc::RpcServer server_;
     RaftServiceImpl service_;

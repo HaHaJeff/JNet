@@ -20,7 +20,7 @@ class Storage;
 class Raft {
 public:
 
-    Raft(const Config&);
+    Raft(const Config&, const std::vector<RaftPeer*>& peers);
 
     //
     // Call this function on every node
@@ -79,13 +79,13 @@ private:
     void ResetHeartbeatTime();
 
     bool NewestLog(const RequestVoteRequest& request);
+    bool Majority() const;
     void SetCurrentTerm(int64_t term);
     void SetVotedFor(int64_t id);
 
     int64_t heartbeatTimeout_;
     int64_t electionTimeout_;
     int64_t randomizedElectionTimeout_;
-    Random random_;
 
 private:
     // 
@@ -124,11 +124,21 @@ private:
     std::vector<int64_t> nextIndex_;
     std::vector<int64_t> matchIndex_;
 
+    //
+    // peer raft instance
+    // 
+    std::vector<RaftPeer*> peers_;
+
     // 
     // Extra infomation exclude raft paper
     //
     int64_t id_;
     int64_t voted_;
+
+    //
+    // for randomize electiontimeout
+    //
+    Random random_;
 };
 
 struct RaftState {
