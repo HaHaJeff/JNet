@@ -70,11 +70,11 @@ void Node::OnAppendEntries(const AppendEntriesRequest& request, const AppendEntr
 
 }
 
-void Node::Start()
+void Node::Start(int timeout)
 {
     server_.Start();
     TRACE("node[%d] peerNum = %d starting...", id_, peers_.size());
-    loop_->RunAfter(10.f, [=]()
+    loop_->RunAfter(timeout, [=]()
     {
         for (auto& peer : peers_) peer->Connect();
     }

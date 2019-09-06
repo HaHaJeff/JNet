@@ -39,7 +39,7 @@ int TcpServer::Bind(const std::string& host, short port, bool reusePort) {
 void TcpServer::Start(bool reusePort) {
     Bind(reusePort);
     threadPool_->Start(); 
-    loop_->Loop();
+    // loop_->Loop();
 }
 
 int TcpServer::Bind(bool reusePort) {
