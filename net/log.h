@@ -17,10 +17,6 @@
     while(0);                                                                               \
 }
 
-class Logger;
-
-//void hlog(int level, const char*format, ...);
-
 #define TRACE(...) hlog(Logger::LTRACE, __VA_ARGS__)
 #define DEBUG(...) hlog(Logger::LDEBUG, __VA_ARGS__)
 #define INFO(...)  hlog(Logger::LINFO, __VA_ARGS__)

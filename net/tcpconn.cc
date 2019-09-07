@@ -12,7 +12,7 @@ TcpConn::TcpConn(EventLoop* loop, const Ip4Addr& local, const Ip4Addr& peer, int
     localAddr_(local),
     peerAddr_(peer),
     connectTimeout_(timeout),
-    fd_(-1)
+    fd_(0)
      {
 }
 

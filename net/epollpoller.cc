@@ -91,8 +91,8 @@ void EpollPoller::RemoveChannel(Channel *channel)
     assert(channels_[channel->GetFd()] == channel);
 
     TRACE("deleting channel %lld fd %d epoll %d", (long long)channel->GetId(), channel->GetFd(), epollfd_);
-//FIXME: if fd's reference is zero, close it, epoll will automatic remove it from interesting tree
-//reduce a system call
+    //FIXME: if fd's reference is zero, close it, epoll will automatic remove it from interesting tree
+    //reduce a system call
     //Update(EPOLL_CTL_DEL, channel);
     channels_.erase(channel->GetFd());
 }
