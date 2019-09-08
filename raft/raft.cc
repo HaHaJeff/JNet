@@ -87,6 +87,20 @@ void Raft::Propose(const std::string &cmd)
 {
 }
 
+void Raft::StartRequestVote()
+{
+    RequestVoteRequest request;
+    request.set_term(currentTerm_);
+    request.set_candidateid(id_);
+    // set last log index
+    // set last log term
+    RequestVoteResponse* response = new RequestVoteResponse;
+    for (int i = 0; i  < peers_.size(); i++)
+    {
+        peers_[i]->RequestVote(request, response);
+    }
+}
+
 void Raft::ToFollower()
 {
     role_ = kFollower;
@@ -104,6 +118,7 @@ void Raft::ToCandidater()
     // reset election time
     ResetElectionTime();
     // send requestVoteRpc to all others servers
+    StartRequestVote();
 }
 
 void Raft::ToLeader()

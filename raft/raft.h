@@ -66,6 +66,8 @@ public:
     void Persist();
     void ReadPersist();
 
+    void StartRequestVote();
+
 private:
     void ToFollower();
     void ToCandidater();
