@@ -13,12 +13,23 @@ class Storage;
 
 class RaftLog {
 public:
-    RaftLog(Storage* storage) {}
-    
+    RaftLog(Storage* storage) : firstIndex_(-1),
+                                lastIndex_(-1),
+                                storage_(storage)
+    {
+    }
+    void SetFirstIndex(int index) { firstIndex_ = index; } 
+    void SetLastIndex(int index) { lastIndex_ = index; }
 private:
     int64_t firstIndex_;
     int64_t lastIndex_;
     Storage* storage_;
+    //
+    // type: noop, data, configuration
+    // term
+    // index
+    // command
+    //
     std::vector<LogEntry> entries_;
 };
 
