@@ -27,6 +27,9 @@ public:
     void PutLastIndex(int64_t lastIndex);
     int64_t GetLastIndex();
 
+    int Write(const char* buf, int64_t len);
+    int Read(char* buf, int64_t len);
+
     void PutEntry(const LogEntry& entry);
     // 
     // return [firstIndex, lastIndex] entries

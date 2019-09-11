@@ -5,12 +5,16 @@
 // for shared_ptr and unique_ptr
 //
 #include <memory>
+#include <sys/types.h>
 
 #include "state.pb.h"
 namespace jraft {
 
 class Storage;
 
+// log format 
+// | ------- term (64bits) ---------|
+// | --------data len (32bits)------|
 class RaftLog {
 public:
     RaftLog(Storage* storage) : firstIndex_(-1),
@@ -18,11 +22,24 @@ public:
                                 storage_(storage)
     {
     }
+    void Append(const LogEntry& log);
+    void Append(const std::vector<LogEntry>& logs);
+    // index - firstIndex = pos of offset_term_
+    void GetMeta(int64_t index, LogMeta& meta);
     void SetFirstIndex(int index) { firstIndex_ = index; } 
     void SetLastIndex(int index) { lastIndex_ = index; }
 private:
+    struct LogMeta
+    {
+        off_t offset_;
+        size_t length_;
+        int64_t term_;
+    };
+private:
     int64_t firstIndex_;
     int64_t lastIndex_;
+    // offset, term 
+    std::vector<std::pair<off_t, int64_t>> offset_term_;
     Storage* storage_;
     //
     // type: noop, data, configuration
