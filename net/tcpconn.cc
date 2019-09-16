@@ -70,6 +70,7 @@ void TcpConn::Connect(EventLoop* loop, const Ip4Addr& local, const Ip4Addr& peer
     state_ = State::kHandShakeing;
     // if connected has successed, fd is writeable
     Attach(loop, fd, localAddr_, peerAddr_);
+    fd_ = fd;
     if (timeout) {
         TcpConnPtr con = shared_from_this();
         timeoutId_ = con->loop_->RunAfter(timeout, [con] {
@@ -114,7 +115,7 @@ void TcpConn::CleanUp(const TcpConnPtr& con) {
 }
 
 void TcpConn::HandleRead(const TcpConnPtr& con) {
-   if (state_ == State::kHandShakeing && HandleHandShake(con)) {
+   if (state_ == State::kHandShakeing && HandleHandShake(con) == -1) {
        return;
    }
    while (state_ == State::kConnected) {
@@ -159,7 +160,7 @@ int TcpConn::HandleHandShake(const TcpConnPtr& con) {
             if (statecb_) { statecb_;}
         }
     } else {
-        TRACE("poll fd %d return %d revents %d", channel_->GetFd(), r, pfd.revents);
+        TRACE("tcp connect error, poll fd %d return %d revents %d", channel_->GetFd(), r, pfd.revents);
         state_ = State::kFailed;
         CleanUp(con);
         return -1;

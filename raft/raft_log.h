@@ -8,39 +8,40 @@
 #include <sys/types.h>
 
 #include "state.pb.h"
-namespace jraft {
+namespace jraft
+{
 
 class Storage;
-
-// log format 
+struct LogMeta
+{
+    off_t offset_;
+    size_t length_;
+    int64_t term_;
+};
+// log format
 // | ------- term (64bits) ---------|
 // | --------data len (32bits)------|
-class RaftLog {
+class RaftLog
+{
 public:
-    RaftLog(Storage* storage) : firstIndex_(-1),
+    RaftLog(Storage *storage) : firstIndex_(-1),
                                 lastIndex_(-1),
                                 storage_(storage)
     {
     }
-    void Append(const LogEntry& log);
-    void Append(const std::vector<LogEntry>& logs);
+    void Append(const LogEntry &log);
+    void Append(const std::vector<LogEntry> &logs);
     // index - firstIndex = pos of offset_term_
-    void GetMeta(int64_t index, LogMeta& meta);
-    void SetFirstIndex(int index) { firstIndex_ = index; } 
+    void GetMeta(int64_t index, LogMeta &meta);
+    void SetFirstIndex(int index) { firstIndex_ = index; }
     void SetLastIndex(int index) { lastIndex_ = index; }
-private:
-    struct LogMeta
-    {
-        off_t offset_;
-        size_t length_;
-        int64_t term_;
-    };
+
 private:
     int64_t firstIndex_;
     int64_t lastIndex_;
-    // offset, term 
+    // offset, term
     std::vector<std::pair<off_t, int64_t>> offset_term_;
-    Storage* storage_;
+    Storage *storage_;
     //
     // type: noop, data, configuration
     // term
@@ -50,37 +51,41 @@ private:
     std::vector<LogEntry> entries_;
 };
 
-struct LogId {
+struct LogId
+{
     LogId() : index_(0), term_(0) {}
     LogId(int64_t index, int64_t term) : index_(index), term_(term) {}
     int64_t index_;
     int64_t term_;
     std::string to_string();
-    void from_string(const std::string&);
+    void from_string(const std::string &);
 };
 
-enum TYPE {
-    CONFIG_CHANGE=0,
-    APPEND_ENTRY=1
+enum TYPE
+{
+    CONFIG_CHANGE = 0,
+    APPEND_ENTRY = 1
 };
 
-struct Command {
-    Command(TYPE type, const std::string& data) : type_(type), data_(data) {}
-    Command(){}
+struct Command
+{
+    Command(TYPE type, const std::string &data) : type_(type), data_(data) {}
+    Command() {}
     TYPE type_;
     std::string data_;
     std::string to_string();
-    void from_string(const std::string&);
+    void from_string(const std::string &);
 };
 
-struct LogEntry1 {
-    LogEntry1(const LogId& id, const Command& cmd) : id_(id), cmd_(cmd) {}
+struct LogEntry1
+{
+    LogEntry1(const LogId &id, const Command &cmd) : id_(id), cmd_(cmd) {}
     LogEntry1() {}
     LogId id_;
     Command cmd_;
     std::string to_string();
-    void from_string(const std::string&);
+    void from_string(const std::string &);
 };
 
-}
+} // namespace jraft
 #endif

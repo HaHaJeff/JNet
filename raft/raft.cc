@@ -13,6 +13,7 @@ Raft::Raft(const Config &config, const std::vector<RaftPeer *> &peers) : storage
                                                                          commitIndex_(0),
                                                                          lastApplied_(0),
                                                                          peers_(peers),
+                                                                         id_(config.id_),
                                                                          random_(0, 0, 0)
 {
 }
@@ -85,18 +86,25 @@ void Raft::OnPreVote(const RequestVoteRequest &request, const RequestVoteRespons
 
 void Raft::Propose(const std::string &cmd)
 {
+    INFO("propose");
+    ToCandidater();
 }
 
 void Raft::StartRequestVote()
 {
     RequestVoteRequest request;
     request.set_term(currentTerm_);
+    request.set_peerid(id_);
     request.set_candidateid(id_);
-    // set last log index
+    // set last log index;
     // set last log term
+    request.set_lastlogindex(0);
+    request.set_lastlogterm(0);
     RequestVoteResponse* response = new RequestVoteResponse;
+    INFO("start call requestVote of peers %d", peers_.size());
     for (int i = 0; i  < peers_.size(); i++)
     {
+        INFO("start call requestVote of peers %d", i);
         peers_[i]->RequestVote(request, response);
     }
 }
@@ -108,6 +116,7 @@ void Raft::ToFollower()
 
 void Raft::ToCandidater()
 {
+    INFO("node %lld to candidater", id_)
     role_ = kCandidater;
     // increment currentTerm
     SetCurrentTerm(++currentTerm_);

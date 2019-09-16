@@ -56,7 +56,7 @@ int TcpServer::Bind(bool reusePort) {
     }
     r = ::listen(fd, 20);
     FATALIF(r, "listen failed %d %s", errno, strerror(errno));
-    INFO("fd %d listening at %s", fd, addr_.ToString().c_str());
+    TRACE("fd %d listening at %s", fd, addr_.ToString().c_str());
     listen_channel_ = new Channel(loop_, fd, Channel::kReadEvent);
     listen_channel_->SetReadCallback([=]{ HandleAccept();});
     listen_channel_->AddToLoop();
@@ -81,7 +81,7 @@ void TcpServer::HandleAccept() {
     int lfd = listen_channel_->GetFd();
     int cfd = -1;
     while (lfd >= 0 && (cfd = accept(lfd, (struct sockaddr*)&raddr, &rsz)) >= 0) {
-        INFO("fd %d accept at %d", lfd, cfd);
+        TRACE("fd %d accept at %d", lfd, cfd);
         sockaddr_in peer, local;
         socklen_t alen = sizeof(peer);
         int r = getpeername(cfd, (sockaddr*)&peer, &alen);
