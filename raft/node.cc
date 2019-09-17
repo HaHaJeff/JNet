@@ -11,7 +11,7 @@ Node::Node(const Config &config, jnet::EventLoop *loop) : loop_(loop),
     // init raft peers, set their's callbacks
     for (int i = 0; i < config.peerAddresses_.size(); i++)
     {
-        peers_.push_back(new RaftPeer(loop, config.serverAddress_, config.peerAddresses_[i]));
+        peers_.push_back(new RaftPeer(loop, config.localAddress_, config.peerAddresses_[i]));
         // set rpc client reply method
         peers_[i]->SetOnPreVote(std::bind(&jraft::Node::OnPreVote, this, std::placeholders::_1, std::placeholders::_2));
         peers_[i]->SetOnRequestVote(std::bind(&jraft::Node::OnRequestVote, this, std::placeholders::_1, std::placeholders::_2));

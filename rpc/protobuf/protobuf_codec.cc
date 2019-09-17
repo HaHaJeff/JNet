@@ -20,7 +20,6 @@ void ProtobufCodec::Send(const TcpConnPtr& conn, const ::google::protobuf::Messa
 void ProtobufCodec::OnMessage(const TcpConnPtr& conn) {
     Buffer& buf = conn->GetInput();
     const int32_t len = buf.PeekInt32();
-    std::cout << "OnMessage len: " << len << std::endl;
     //
     // receive a full packet
     //

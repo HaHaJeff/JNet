@@ -34,12 +34,16 @@ void Raft::RequestVote(const RequestVoteRequest &request, RequestVoteResponse &r
     //     INFO("node was not candidater, but has requested vote");
     //     return;
     // }
+    INFO("node %lld received RequestVote from node %lld, term = %lld, currentTerm = %lld",
+          id_, request.peerid(), request.term(), currentTerm_);
+    reply.set_peerid(id_);
+    reply.set_term(currentTerm_);
 
     // reply false if request.term < currentTerm
     // if votedFor is null or candidateId &&
     // candidate's log is at least as up-to-date as receive's log
     // gran vote
-    if (request.term() < currentTerm_ &&
+    if (request.term() > currentTerm_ &&
         (votedFor_ == -1 || votedFor_ == request.peerid()) &&
         NewestLog(request))
     {
@@ -56,6 +60,8 @@ void Raft::RequestVote(const RequestVoteRequest &request, RequestVoteResponse &r
 
 void Raft::OnRequestVote(const RequestVoteRequest &request, const RequestVoteResponse &reply)
 {
+    INFO("node %lld received RequestVoteResponse from node %lld, response term = %lld, currentTerm = %lld, granted = %d",
+          id_, reply.peerid(), reply.term(), currentTerm_, reply.votegranted());
     if (role_ != kCandidater || reply.term() > currentTerm_ || reply.votegranted() == false)
     {
         return;
@@ -65,8 +71,6 @@ void Raft::OnRequestVote(const RequestVoteRequest &request, const RequestVoteRes
         return;
     }
 
-    INFO("node %lld received RequestVoteResponse from node %lld, response term = %lld, currentTerm = %lld, granted = %d",
-          id_, reply.peerid(), reply.term(), currentTerm_, reply.votegranted());
     ++voted_;
 
     if (Majority()) 
@@ -85,7 +89,6 @@ void Raft::OnPreVote(const RequestVoteRequest &request, const RequestVoteRespons
 
 void Raft::Propose(const std::string &cmd)
 {
-    INFO("propose");
     ToCandidater();
 }
 
@@ -99,10 +102,9 @@ void Raft::StartRequestVote()
     // set last log term
     request.set_lastlogindex(0);
     request.set_lastlogterm(0);
-    RequestVoteResponse* response = new RequestVoteResponse;
     for (int i = 0; i  < peers_.size(); i++)
     {
-        INFO("start call requestVote of peers %d", i);
+        RequestVoteResponse* response = new RequestVoteResponse;
         peers_[i]->RequestVote(request, response);
     }
 }
@@ -130,6 +132,7 @@ void Raft::ToCandidater()
 
 void Raft::ToLeader()
 {
+    INFO("node %lld become leader", id_);
     role_ = kLeader;
 }
 

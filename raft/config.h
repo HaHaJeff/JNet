@@ -45,6 +45,11 @@ struct Config {
     Ip4Addr serverAddress_;
 
     //
+    // RPC client address
+    //
+    Ip4Addr localAddress_;
+
+    //
     // peer address exclude this raft node
     //
     std::vector<Ip4Addr> peerAddresses_;
