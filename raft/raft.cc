@@ -28,14 +28,13 @@ void Raft::OnAppendEntries(const AppendEntriesRequest &request, const AppendEntr
 
 void Raft::RequestVote(const RequestVoteRequest &request, RequestVoteResponse &reply)
 {
-    if (role_ != kCandidater)
-    {
-        INFO("node was not candidater, but has requested vote");
-        return;
-    }
+    // raft when don't allow node participates requestVote except it's candidater
+    // if (role_ != kCandidater)
+    // {
+    //     INFO("node was not candidater, but has requested vote");
+    //     return;
+    // }
 
-    reply.set_peerid(id_);
-    reply.set_term(currentTerm_);
     // reply false if request.term < currentTerm
     // if votedFor is null or candidateId &&
     // candidate's log is at least as up-to-date as receive's log
@@ -101,7 +100,6 @@ void Raft::StartRequestVote()
     request.set_lastlogindex(0);
     request.set_lastlogterm(0);
     RequestVoteResponse* response = new RequestVoteResponse;
-    INFO("start call requestVote of peers %d", peers_.size());
     for (int i = 0; i  < peers_.size(); i++)
     {
         INFO("start call requestVote of peers %d", i);

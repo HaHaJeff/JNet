@@ -68,9 +68,13 @@ void Node::OnAppendEntries(const AppendEntriesRequest& request, const AppendEntr
 
 }
 
-void Node::Start()
+void Node::StartServer()
 {
     server_.Start();
+}
+
+void Node::Start()
+{
     for (auto& peer : peers_) peer->Connect();
 }
 

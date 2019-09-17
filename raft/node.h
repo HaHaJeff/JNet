@@ -26,6 +26,7 @@ public:
     void AppendEntries(const AppendEntriesRequest&, AppendEntriesResponse*);
     void OnAppendEntries(const AppendEntriesRequest&, const AppendEntriesResponse&);
 
+    void StartServer();
     void Start();
 private:
     Raft* raft_;

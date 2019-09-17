@@ -115,7 +115,7 @@ void TcpConn::CleanUp(const TcpConnPtr& con) {
 }
 
 void TcpConn::HandleRead(const TcpConnPtr& con) {
-   if (state_ == State::kHandShakeing && HandleHandShake(con) == -1) {
+   if (state_ == State::kHandShakeing && HandleHandShake(con)) {
        return;
    }
    while (state_ == State::kConnected) {
