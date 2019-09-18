@@ -9,6 +9,7 @@
 /rpc/protorpc/*.pb.*
 test*
 http_server
+*.txt
 /raft/test*
 /raft/*.o
 /raft/*.pb.*

@@ -1,96 +1,94 @@
 #include "raft_log.h"
+#include "storage.h"
+#include "log.h"
 
-namespace jraft
+namespace jraft {
+
+struct LogHeader
 {
-
-const std::string id_header = "LOG_ID:";
-const int id_len = id_header.length();
-const std::string cmd_header = "COMMAND:";
-const int cmd_len = cmd_header.length();
-
-std::string LogId::to_string()
-{
-    return id_header + std::to_string(index_) + ":" + std::to_string(term_) + ":";
-}
-
-void LogId::from_string(const std::string &str)
-{
-    int pos_id = str.find(id_header);
-
-    int pos_index = str.find(":", pos_id + id_len + 1);
-    std::string str_index(str.substr(pos_id + 1, pos_index));
-    index_ = std::stoi(str_index);
-
-    int pos_term = str.find(":", pos_index + 1);
-    std::string str_term(str.substr(pos_id + 1, pos_term));
-    term_ = std::stoi(str_term);
-}
-
-std::string Command::to_string()
-{
-    std::string ret;
-    switch (type_)
-    {
-    case CONFIG_CHANGE:
-        ret = "CONFIG_CHANGE:";
-        break;
-    case APPEND_ENTRY:
-        ret = "APPEND_ENTRY:";
-        break;
-    }
-    return cmd_header + ret + data_;
-}
-
-void Command::from_string(const std::string &str)
-{
-    int pos_cmd = str.find(cmd_header);
-
-    int pos_type = str.find(":", pos_cmd + cmd_len + 1);
-    std::string str_type(str.substr(pos_type, pos_type + 1));
-    if (str_type == "CONFIG_CHANGE:")
-    {
-        type_ = CONFIG_CHANGE;
-    }
-    else if (str_type == "APPEND_ENTRY:")
-    {
-        type_ = APPEND_ENTRY;
-    }
-    data_ = str.substr(pos_type + 1);
-}
-
-std::string LogEntry1::to_string()
-{
-    return id_.to_string() + cmd_.to_string();
-}
-
-void LogEntry1::from_string(const std::string &str)
-{
-    id_.from_string(str), cmd_.from_string(str);
-}
+    LogHeader(int64_t term, int len) : term_(term), len_(len) {}
+    LogHeader() : term_(0), len_(0) {}
+    int64_t term_;
+    int len_;
+};
 
 RaftLog::RaftLog(Storage *storage) : firstIndex_(-1),
+                                     bytes_(0),
                                      storage_(storage)
 {
 }
 
 void RaftLog::Append(const LogEntry& log)
 {
-    
-}
-
-void RaftLog::Append(const std::vector<LogEntry>& logs)
-{
-
+    int64_t term = log.term();
+    std::string str = log.SerializeAsString();
+    int len = str.size();
+    LogHeader header(term, len);
+    if (-1 == storage_->Write(reinterpret_cast<char*>(&header), sizeof(header), bytes_))
+    {
+        ERROR("RaftLog append write header error!");
+        return;
+    }
+    if (-1 == storage_->Write(str.c_str(), len, bytes_+sizeof(header)))
+    {
+        ERROR("RaftLog append write content error!");
+        return;
+    }
+    offset_term_.push_back({bytes_, term});
+    bytes_ += len + sizeof(header);
 }
 
 void RaftLog::Load()
 {
-
+    off64_t off = 0;
+    int64_t file_size = storage_->FileSize();
+    if (-1 == storage_->Read(reinterpret_cast<char*>(&firstIndex_), sizeof(firstIndex_), off))
+    {
+        ERROR("RaftLog load read firstIndex error!");
+        return;
+    }
+    off += 8;
+    while (off < file_size)
+    {
+        LogHeader header;
+        if (-1 == storage_->Read(reinterpret_cast<char*>(&header), sizeof(header), off))
+        {
+            ERROR("RaftLog load read header error!");
+            return;
+        }
+        offset_term_.push_back({off, header.term_});
+        char buf[header.len_];
+        if (-1 == storage_->Read(buf, sizeof(buf), off+sizeof(header)))
+        {
+            ERROR("RaftLog load read conntent error!");
+            return;
+        }
+        off += sizeof(header) + header.len_;
+    }
 }
 
 LogEntry* RaftLog::Get(int64_t index)
 {
-    return nullptr;
+    LogHeader header;
+    if (ValidIndex(index) == false) return nullptr;
+    off64_t off = offset_term_[index].first;
+    if (-1 == storage_->Read(reinterpret_cast<char*>(&header), sizeof(header), off))
+    {
+        ERROR("RaftLog get header of index=%lld error", index);
+        return nullptr;         
+    }
+    std::cout << header.term_ << std::endl;
+    std::cout << header.len_ << std::endl;
+    int len = header.len_;
+    char buf[len];
+    if (-1 == storage_->Read(buf, sizeof(buf), off+sizeof(header)))
+    {
+        ERROR("RaftLog get content of index=%lld error", index);
+        return nullptr;         
+    }
+    LogEntry* entry = new LogEntry;
+    entry->ParseFromString(buf);
+    return entry;
 }
 
 int64_t RaftLog::Term(int64_t index) const
@@ -109,9 +107,19 @@ int64_t RaftLog::LastIndex() const
     return offset_term_.size() + firstIndex_ - 1;
 }
 
+void RaftLog::SetFirstIndex(int64_t index)
+{
+    if (-1 == storage_->Write(reinterpret_cast<char*>(&firstIndex_), sizeof(firstIndex_), bytes_))
+    {
+        ERROR("Raft SetFirstIndex index = %lld error!", index);
+        return;
+    }
+    firstIndex_ = index;
+}
+
 bool RaftLog::ValidIndex(int64_t index) const
 {
-    return !offset_term_.empty() || (index - firstIndex_) > offset_term_.size()-1;
+    return !offset_term_.empty() && (index - firstIndex_) >= offset_term_.size()-1;
 }
 
 } // namespace jraft
