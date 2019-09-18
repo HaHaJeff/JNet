@@ -12,34 +12,40 @@ namespace jraft
 {
 
 class Storage;
+
 struct LogMeta
 {
     off_t offset_;
     size_t length_;
     int64_t term_;
 };
+
+// header
+// firstIndex 8 byte
+
 // log format
 // | ------- term (64bits) ---------|
 // | --------data len (32bits)------|
 class RaftLog
 {
 public:
-    RaftLog(Storage *storage) : firstIndex_(-1),
-                                lastIndex_(-1),
-                                storage_(storage)
-    {
-    }
+    RaftLog(Storage *storage);
     void Append(const LogEntry &log);
     void Append(const std::vector<LogEntry> &logs);
+    void Load();
+    LogEntry* Get(int64_t index);
+    int64_t Term(int64_t index) const;
+    int64_t FirstIndex() const;
+    int64_t LastIndex() const;
+
+private:
     // index - firstIndex = pos of offset_term_
     void GetMeta(int64_t index, LogMeta &meta);
-    void SetFirstIndex(int index) { firstIndex_ = index; }
-    void SetLastIndex(int index) { lastIndex_ = index; }
+    bool ValidIndex(int64_t index) const;
 
 private:
     int64_t firstIndex_;
-    int64_t lastIndex_;
-    // offset, term
+    // offset, term, convenient to get index and term
     std::vector<std::pair<off_t, int64_t>> offset_term_;
     Storage *storage_;
     //
