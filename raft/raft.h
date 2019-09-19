@@ -67,6 +67,8 @@ public:
     void ReadPersist();
 
     void StartRequestVote();
+    void StartPrevote();
+    void StartAppendEntries(const std::string& cmd);
 
 private:
     void ToFollower();

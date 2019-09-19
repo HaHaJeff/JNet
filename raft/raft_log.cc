@@ -117,6 +117,12 @@ void RaftLog::SetFirstIndex(int64_t index)
     firstIndex_ = index;
 }
 
+bool RaftLog::ContainLog(int64_t index, int64_t term)
+{
+    if (!ValidIndex(index)) return false;
+    return offset_term_[index].second == term;
+}
+
 bool RaftLog::ValidIndex(int64_t index) const
 {
     return !offset_term_.empty() && (index - firstIndex_) >= offset_term_.size()-1;
