@@ -56,18 +56,8 @@ public:
 
     void Propose(const std::string& cmd);
 
-    //
-    // Call this function on every node
-    // Updated on stable storage before responding tp RPCS
-    // currentTerm: latest term server has seen(initialized to 0 on first boot, increase monotonically)
-    // votedFor: candidated that received vote in current term (or null if none)
-    // log[]: log entries, each entry contains command for state macgine, and term when entry was received by leader(first index is 1)
-    //
-    void Persist();
-    void ReadPersist();
-
-    void StartRequestVote();
     void StartPrevote();
+    void StartRequestVote();
     void StartAppendEntries(const std::string& cmd);
 
 private:

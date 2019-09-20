@@ -28,17 +28,17 @@ void Raft::AppendEntries(const AppendEntriesRequest &request, AppendEntriesRespo
     // reply false if term < currentTerm
     // reply false if log doesn't contain an entry at prevLogIndex whose
     // term matches prevLogTerm
-    // if an existing entry conflicts with a new one(same index but diffent
+    // if an existing entry conflicts with a new one(same index but different
     // terms), delete the existing entry and all that follow it
     // append any new entries not already in the log
     // if leaderCommit > commitIndex, set commitIndex = min(leaderCommit,
     // index of last new entry)
-
-    reply.set_prevlogindex(-1);
-    reply.set_prevlogterm(-1);
+    reply.set_term(currentTerm_);
     reply.set_peerid(id_);
-    if (request.term() < currentTerm_)
+    if (request.term() < currentTerm_ ||
+        !logs_.ContainLog(request.prevlogindex(), request.prevlogterm()))
     {
+        logs_.Truncate(request.prevlogindex());
         reply.set_success(false);
         return;
     }
@@ -115,6 +115,11 @@ void Raft::Propose(const std::string &cmd)
     ToCandidater();
 }
 
+void Raft::StartPrevote()
+{
+
+}
+
 void Raft::StartRequestVote()
 {
     RequestVoteRequest request;
@@ -129,6 +134,28 @@ void Raft::StartRequestVote()
     {
         RequestVoteResponse *response = new RequestVoteResponse;
         peers_[i]->RequestVote(request, response);
+    }
+}
+
+void Raft::StartAppendEntries(const std::string &cmd)
+{
+    if (role_ != kLeader)
+    {
+        INFO("node %lld start log replica but not leader", id_);
+        return;
+    }
+
+    AppendEntriesRequest request;
+    AppendEntriesResponse *response = new AppendEntriesResponse;
+    request.set_term(currentTerm_);
+    request.set_peerid(id_);
+    request.set_entries(0, cmd);
+    request.set_commitedindex(commitIndex_);
+    for (int i = 0; i < peers_.size(); i++)
+    {
+        request.set_prevlogindex(nextIndex_[i]-1);
+        request.set_prevlogterm(request.prevlogindex());
+        peers_[i]->AppendEntries(request, response);
     }
 }
 
@@ -190,7 +217,8 @@ bool Raft::NewestLog(const RequestVoteRequest &request)
     int64_t term = request.lastlogterm();
     int64_t newestIndex = logs_.LastIndex();
     int64_t newestTerm = logs_.Term(newestIndex);
-    if (term != newestTerm) return newestTerm < term;
+    if (term != newestTerm)
+        return newestTerm < term;
     return newestIndex < index;
 }
 

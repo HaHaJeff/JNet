@@ -71,14 +71,12 @@ LogEntry* RaftLog::Get(int64_t index)
 {
     LogHeader header;
     if (ValidIndex(index) == false) return nullptr;
-    off64_t off = offset_term_[index].first;
+    off64_t off = offset_term_[index-firstIndex_].first;
     if (-1 == storage_->Read(reinterpret_cast<char*>(&header), sizeof(header), off))
     {
         ERROR("RaftLog get header of index=%lld error", index);
         return nullptr;         
     }
-    std::cout << header.term_ << std::endl;
-    std::cout << header.len_ << std::endl;
     int len = header.len_;
     char buf[len];
     if (-1 == storage_->Read(buf, sizeof(buf), off+sizeof(header)))
@@ -117,10 +115,17 @@ void RaftLog::SetFirstIndex(int64_t index)
     firstIndex_ = index;
 }
 
+void RaftLog::Truncate(const int64_t& index)
+{
+    if(!ValidIndex(index)) return;
+    assert(-1 != storage_->Truncate(offset_term_[index-firstIndex_].first)); 
+    offset_term_.erase(offset_term_.begin()+index-firstIndex_);
+}
+
 bool RaftLog::ContainLog(int64_t index, int64_t term)
 {
     if (!ValidIndex(index)) return false;
-    return offset_term_[index].second == term;
+    return offset_term_[index-firstIndex_].second == term;
 }
 
 bool RaftLog::ValidIndex(int64_t index) const

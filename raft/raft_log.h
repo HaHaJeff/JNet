@@ -39,6 +39,7 @@ public:
     int64_t FirstIndex() const;
     int64_t LastIndex() const;
     void SetFirstIndex(int64_t index);
+    void Truncate(const int64_t& index);
     bool ContainLog(int64_t index, int64_t term);
 private:
     // index - firstIndex = pos of offset_term_

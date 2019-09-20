@@ -23,6 +23,11 @@ int Storage::Read(char* buf, int len, off64_t off)
     return pread(fd_, buf, len, off);
 }
 
+int Storage::Truncate(off64_t off)
+{
+    return ftruncate64(fd_, off);
+}
+
 int64_t Storage::FileSize()
 {
     struct stat stat_buf;
