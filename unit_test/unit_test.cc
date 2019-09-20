@@ -29,7 +29,7 @@ int RunAllTests() {
 
   if (tests->size() != 0) {
     for (auto elem : *tests) {
-      fprintf(stderr, "==== Test %s.%s\n", elem.base, elem.name);
+      //fprintf(stderr, "==== Test %s.%s\n", elem.base, elem.name);
       elem.func();
     }
   }

@@ -8,6 +8,7 @@ struct LogHeader
 {
     LogHeader(int64_t term, int len) : term_(term), len_(len) {}
     LogHeader() : term_(0), len_(0) {}
+    void Print() { INFO("term: %lld, len: %lld", term_, len_);}
     int64_t term_;
     int len_;
 };
@@ -40,30 +41,29 @@ void RaftLog::Append(const LogEntry& log)
 
 void RaftLog::Load()
 {
-    off64_t off = 0;
     int64_t file_size = storage_->FileSize();
-    if (-1 == storage_->Read(reinterpret_cast<char*>(&firstIndex_), sizeof(firstIndex_), off))
+    if (-1 == storage_->Read(reinterpret_cast<char*>(&firstIndex_), sizeof(firstIndex_), bytes_))
     {
         ERROR("RaftLog load read firstIndex error!");
         return;
     }
-    off += 8;
-    while (off < file_size)
+    bytes_ += 8;
+    while (bytes_ < file_size)
     {
         LogHeader header;
-        if (-1 == storage_->Read(reinterpret_cast<char*>(&header), sizeof(header), off))
+        if (-1 == storage_->Read(reinterpret_cast<char*>(&header), sizeof(header), bytes_))
         {
             ERROR("RaftLog load read header error!");
             return;
         }
-        offset_term_.push_back({off, header.term_});
+        offset_term_.push_back({bytes_, header.term_});
         char buf[header.len_];
-        if (-1 == storage_->Read(buf, sizeof(buf), off+sizeof(header)))
+        if (-1 == storage_->Read(buf, sizeof(buf), bytes_+sizeof(header)))
         {
             ERROR("RaftLog load read conntent error!");
             return;
         }
-        off += sizeof(header) + header.len_;
+        bytes_ += sizeof(header) + header.len_;
     }
 }
 
@@ -107,11 +107,12 @@ int64_t RaftLog::LastIndex() const
 
 void RaftLog::SetFirstIndex(int64_t index)
 {
-    if (-1 == storage_->Write(reinterpret_cast<char*>(&firstIndex_), sizeof(firstIndex_), bytes_))
+    if (-1 == storage_->Write(reinterpret_cast<char*>(&index), sizeof(index), bytes_))
     {
         ERROR("Raft SetFirstIndex index = %lld error!", index);
         return;
     }
+    bytes_ += sizeof(firstIndex_);
     firstIndex_ = index;
 }
 
@@ -130,7 +131,7 @@ bool RaftLog::ContainLog(int64_t index, int64_t term)
 
 bool RaftLog::ValidIndex(int64_t index) const
 {
-    return !offset_term_.empty() && (index - firstIndex_) >= offset_term_.size()-1;
+    return !offset_term_.empty() && (index - firstIndex_) < offset_term_.size();
 }
 
 } // namespace jraft
