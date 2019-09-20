@@ -118,8 +118,15 @@ void RaftLog::SetFirstIndex(int64_t index)
 
 void RaftLog::Truncate(const int64_t& index)
 {
-    if(!ValidIndex(index)) return;
+    if (!ValidIndex(index)) return;
+    if (index <= firstIndex_) 
+    {
+        assert(-1 != storage_->Truncate(0)); 
+        bytes_ = 0;
+        SetFirstIndex(index);
+    }
     assert(-1 != storage_->Truncate(offset_term_[index-firstIndex_].first)); 
+    bytes_ = offset_term_[index-firstIndex_].first;
     offset_term_.erase(offset_term_.begin()+index-firstIndex_);
 }
 
