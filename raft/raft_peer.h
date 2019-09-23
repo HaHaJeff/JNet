@@ -34,9 +34,9 @@ public:
     //
     // type match 
     //
-    void OnPreVote(const RequestVoteRequest* request, RequestVoteResponse* response) { this->onPreVote_(*request, *response); }
-    void OnRequestVote(const RequestVoteRequest* request, RequestVoteResponse* response) { this->onRequestVote_(*request, *response); }
-    void OnAppendEntries(const AppendEntriesRequest* request, AppendEntriesResponse* response) { this->onAppendEntries_(*request, *response); }
+    void OnPreVote(RequestVoteRequest* request, RequestVoteResponse* response) { this->onPreVote_(*request, *response); }
+    void OnRequestVote(RequestVoteRequest* request, RequestVoteResponse* response) { this->onRequestVote_(*request, *response); }
+    void OnAppendEntries(AppendEntriesRequest* request, AppendEntriesResponse* response) { this->onAppendEntries_(*request, *response); }
 
     // 
     // after RpcServer start

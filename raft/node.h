@@ -20,11 +20,11 @@ public:
     // regeister callback
     //
     void RequestVote(const RequestVoteRequest&, RequestVoteResponse*);
-    void OnRequestVote(const RequestVoteRequest&, const RequestVoteResponse&);
+    void OnRequestVote(RequestVoteRequest&, RequestVoteResponse&);
     void PreVote(const RequestVoteRequest&, RequestVoteResponse*);
-    void OnPreVote(const RequestVoteRequest&, const RequestVoteResponse&);
+    void OnPreVote(RequestVoteRequest&, RequestVoteResponse&);
     void AppendEntries(const AppendEntriesRequest&, AppendEntriesResponse*);
-    void OnAppendEntries(const AppendEntriesRequest&, const AppendEntriesResponse&);
+    void OnAppendEntries(AppendEntriesRequest&, AppendEntriesResponse&);
 
     void StartServer();
     void Start();

@@ -32,7 +32,7 @@ public:
     // Call this function on leader
     // if the this request has got voted in a majority qurom, incr commitedindex and update some infomation
     //
-    void OnAppendEntries(const AppendEntriesRequest&, const AppendEntriesResponse&);
+    void OnAppendEntries(AppendEntriesRequest&, AppendEntriesResponse&);
 
     //
     // Call this function on every node
@@ -42,7 +42,7 @@ public:
     //
     // Call this function on leader
     //
-    void OnRequestVote(const RequestVoteRequest&, const RequestVoteResponse&);
+    void OnRequestVote(RequestVoteRequest&, RequestVoteResponse&);
 
     //
     // Call this function on every node
@@ -52,7 +52,7 @@ public:
     //
     // Call this function on leader
     //
-    void OnPreVote(const RequestVoteRequest&, const RequestVoteResponse&);
+    void OnPreVote(RequestVoteRequest&, RequestVoteResponse&);
 
     void Propose(const std::string& cmd);
 
@@ -67,6 +67,7 @@ private:
     void Tick();
     void TickOnHeartBeat();
     void TickOnElection();
+    void ResetTimer();
 
     void ResetElectionTime();
     void ResetHeartbeatTime();
@@ -79,6 +80,8 @@ private:
     int64_t heartbeatTimeout_;
     int64_t electionTimeout_;
     int64_t randomizedElectionTimeout_;
+    int64_t elpasedTime_;
+    const int hz = 100;
 
 private:
     // 

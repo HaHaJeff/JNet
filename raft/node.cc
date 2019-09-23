@@ -43,7 +43,7 @@ void Node::RequestVote(const RequestVoteRequest& request, RequestVoteResponse* r
     loop_->RunInLoop([=](){raft_->RequestVote(request, *reply);});
 }
 
-void Node::OnRequestVote(const RequestVoteRequest& request, const RequestVoteResponse& reply)
+void Node::OnRequestVote(RequestVoteRequest& request, RequestVoteResponse& reply)
 {
     raft_->OnRequestVote(request, reply);
 }
@@ -53,7 +53,7 @@ void Node::PreVote(const RequestVoteRequest& request, RequestVoteResponse* reply
 
 }
 
-void Node::OnPreVote(const RequestVoteRequest& request, const RequestVoteResponse& reply)
+void Node::OnPreVote(RequestVoteRequest& request, RequestVoteResponse& reply)
 {
 
 }
@@ -63,9 +63,9 @@ void Node::AppendEntries(const AppendEntriesRequest& request, AppendEntriesRespo
 
 }
 
-void Node::OnAppendEntries(const AppendEntriesRequest& request, const AppendEntriesResponse& reply)
+void Node::OnAppendEntries(AppendEntriesRequest& request, AppendEntriesResponse& reply)
 {
-
+    raft_->OnAppendEntries(request, reply);
 }
 
 void Node::StartServer()

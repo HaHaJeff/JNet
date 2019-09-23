@@ -1,9 +1,8 @@
 syntax = "proto2";
-
+import "state.proto";
 package jraft;
 
 option cc_generic_services = true;
-
 
 message RequestVoteRequest {
     required int64 term = 1;
@@ -24,8 +23,9 @@ message AppendEntriesRequest {
     required int64 peerId = 2;
     required int64 prevLogIndex = 3;
     required int64 prevLogTerm = 4;
-    repeated string entries = 5;
-    required int64 commitedIndex = 6;
+    required int64 commitedIndex = 5;
+    repeated EntryType type = 6;
+    repeated string entries = 7;
 }
 
 message AppendEntriesResponse {

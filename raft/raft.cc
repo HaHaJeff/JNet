@@ -6,7 +6,16 @@
 namespace jraft
 {
 
-Raft::Raft(const Config &config, const std::vector<RaftPeer *> &peers) : storage_(new Storage(config.path_)),
+EntryType Parse(const std::string& cmd)
+{
+    return ENTRY_TYPE_DATA;
+}
+
+Raft::Raft(const Config &config, const std::vector<RaftPeer *> &peers) : heartbeatTimeout_(0),
+                                                                         electionTimeout_(0),
+                                                                         randomizedElectionTimeout_(0),
+                                                                         elpasedTime_(0),
+                                                                         storage_(new Storage(config.path_)),
                                                                          currentTerm_(0),
                                                                          votedFor_(-1),
                                                                          logs_(storage_),
@@ -16,36 +25,77 @@ Raft::Raft(const Config &config, const std::vector<RaftPeer *> &peers) : storage
                                                                          id_(config.id_),
                                                                          random_(0, 0, 0)
 {
+    randomizedElectionTimeout_ = random_.Generate();
 }
 
 void Raft::AppendEntries(const AppendEntriesRequest &request, AppendEntriesResponse &reply)
 {
-    INFO("node %lld received AppendEntries from node %lld, term = %lld, \
+    INFO("node %lld received AppendEntries request from node %lld, term = %lld, \
           prevLogIndex = %lld, prevLogTerm = %lld, comittedIndex = %lld",
          id_, request.peerid(), request.term(), request.prevlogindex(),
          request.prevlogterm(), request.commitedindex());
 
+    // for leader to update itself
+    reply.set_term(currentTerm_);
+    reply.set_peerid(id_);
+
+    int64_t insertIndex = request.prevlogindex()+1;
+    int64_t term = request.term();
     // reply false if term < currentTerm
     // reply false if log doesn't contain an entry at prevLogIndex whose
     // term matches prevLogTerm
-    // if an existing entry conflicts with a new one(same index but different
-    // terms), delete the existing entry and all that follow it
-    // append any new entries not already in the log
-    // if leaderCommit > commitIndex, set commitIndex = min(leaderCommit,
-    // index of last new entry)
-    reply.set_term(currentTerm_);
-    reply.set_peerid(id_);
-    if (request.term() < currentTerm_ ||
+    if (term < currentTerm_ ||
         !logs_.ContainLog(request.prevlogindex(), request.prevlogterm()))
     {
-        logs_.Truncate(request.prevlogindex());
         reply.set_success(false);
         return;
     }
+
+    // if an existing entry conflicts with a new one(same index but different
+    // terms), delete the existing entry and all that follow it
+    if (!logs_.ContainLog(insertIndex, term))
+    {
+        logs_.Truncate(insertIndex);
+    }
+
+    // append any new entries not already in the log
+    // if leaderCommit > commitIndex, set commitIndex = min(leaderCommit,
+    // index of last new entry)
+    LogEntry entry;
+    auto entries = request.entries();
+    for (int i = 0; i < entries.size(); i++)
+    {
+        entry.set_type(request.type(i));
+        entry.set_index(insertIndex);
+        entry.set_term(term);
+        entry.set_command(request.entries(i));
+        logs_.Append(entry);
+    }
+    if (request.commitedindex() > commitIndex_)
+    {
+        commitIndex_ = std::min(request.commitedindex(), insertIndex);
+    }
 }
 
-void Raft::OnAppendEntries(const AppendEntriesRequest &request, const AppendEntriesResponse &reply)
+void Raft::OnAppendEntries(AppendEntriesRequest &request, AppendEntriesResponse &reply)
 {
+    INFO("node %lld received AppendEntries response from node %lld, term = %lld,\
+          success = %d", id_, reply.peerid(), reply.term(), reply.success());
+    int64_t peerid = reply.peerid();
+    if (request.term() > currentTerm_)
+    {
+        return;
+    }
+    if (reply.success() == false)
+    {
+        --nextIndex_[peerid];
+        request.set_prevlogindex(nextIndex_[peerid]-1);
+        request.set_prevlogterm(logs_.Term(request.prevlogindex()));
+        peers_[peerid]->AppendEntries(request, &reply);
+        AppendEntries(request, reply);
+        return;
+    }
+    matchIndex_[peerid] = nextIndex_[peerid]++;
 }
 
 void Raft::RequestVote(const RequestVoteRequest &request, RequestVoteResponse &reply)
@@ -80,7 +130,7 @@ void Raft::RequestVote(const RequestVoteRequest &request, RequestVoteResponse &r
     }
 }
 
-void Raft::OnRequestVote(const RequestVoteRequest &request, const RequestVoteResponse &reply)
+void Raft::OnRequestVote(RequestVoteRequest &request, RequestVoteResponse &reply)
 {
     INFO("node %lld received RequestVoteResponse from node %lld, response term = %lld, currentTerm = %lld, granted = %d",
          id_, reply.peerid(), reply.term(), currentTerm_, reply.votegranted());
@@ -106,7 +156,7 @@ void Raft::PreVote(const RequestVoteRequest &request, RequestVoteResponse &reply
 {
 }
 
-void Raft::OnPreVote(const RequestVoteRequest &request, const RequestVoteResponse &reply)
+void Raft::OnPreVote(RequestVoteRequest &request, RequestVoteResponse &reply)
 {
 }
 
@@ -117,7 +167,7 @@ void Raft::Propose(const std::string &cmd)
 
 void Raft::StartPrevote()
 {
-
+    INFO("not implement prevote");
 }
 
 void Raft::StartRequestVote()
@@ -151,10 +201,11 @@ void Raft::StartAppendEntries(const std::string &cmd)
     request.set_peerid(id_);
     request.set_entries(0, cmd);
     request.set_commitedindex(commitIndex_);
+    request.set_type(0, Parse(cmd));
     for (int i = 0; i < peers_.size(); i++)
     {
         request.set_prevlogindex(nextIndex_[i]-1);
-        request.set_prevlogterm(request.prevlogindex());
+        request.set_prevlogterm(logs_.Term(request.prevlogindex()));
         peers_[i]->AppendEntries(request, response);
     }
 }
@@ -199,6 +250,12 @@ void Raft::TickOnHeartBeat()
 
 void Raft::TickOnElection()
 {
+}
+
+void Raft::ResetTimer()
+{
+    elpasedTime_ = 0;
+    randomizedElectionTimeout_ = random_.Generate();
 }
 
 void Raft::ResetElectionTime()

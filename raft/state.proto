@@ -16,9 +16,3 @@ message LogEntry {
     required int64 index = 3;
     required string command = 4;
 }
-
-message PersistState {
-    required int64 currentTerm = 1;
-    required int64 votedFor = 2;
-    repeated LogEntry logs = 3;
-}
