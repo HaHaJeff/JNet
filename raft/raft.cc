@@ -88,6 +88,7 @@ void Raft::OnAppendEntries(AppendEntriesRequest &request, AppendEntriesResponse 
     }
     if (reply.success() == false)
     {
+        // decre nextIndex and restart AppendEntries
         --nextIndex_[peerid];
         request.set_prevlogindex(nextIndex_[peerid]-1);
         request.set_prevlogterm(logs_.Term(request.prevlogindex()));
@@ -96,6 +97,11 @@ void Raft::OnAppendEntries(AppendEntriesRequest &request, AppendEntriesResponse 
         return;
     }
     matchIndex_[peerid] = nextIndex_[peerid]++;
+    commitIndex_ = request.prevlogindex() + 1;
+    if (commitIndex_ >= lastApplied_)
+    {
+        ;
+    }
 }
 
 void Raft::RequestVote(const RequestVoteRequest &request, RequestVoteResponse &reply)
