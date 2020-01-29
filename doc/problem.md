@@ -62,6 +62,6 @@ struct A {
 使用同一个port同时作为listen以及connect端口绑定
 **三种解决方案**
 
-- 修改tcpconn.cc源码，对connect不使用bind
-- 修改config.cc源码，增加localAddress字段 (使用这种方案，不需要改变基础库JNet的源码)
-- 修改tcpconn.cc源码，使用Net::SetReusePort对fd进行设置 
+- 修改tcpconn.cc源码，对connect不使用bind（不使用bind相当于内核默认分配一个可用端口）
+- 修改config.cc源码，增加localAddress字段 (推荐使用这种方案，不需要改变基础库JNet的源码)
+- 修改tcpconn.cc源码，使用Net::SetReusePort对fd进行设置（Linux高版本内核支持 reuse port，具体原理尚未掌握）
